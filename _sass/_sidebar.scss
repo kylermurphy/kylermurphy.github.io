@@ -106,6 +106,14 @@
     padding-left: 0;
     padding-right: 0;
   }
+
+  img {
+    display: none;
+
+    @include breakpoint($large) {
+      max-width: 175px;
+    }
+  }
 }
 
 .author__name {

@@ -7,13 +7,13 @@
 
 # Site Settings
 locale                   : "en-US"
-title                    : "Mykhaylo Shumko"
+title                    : "Kyle Murphy"
 title_separator          : "-"
-name                     : &name "Mykhaylo Shumko"
+name                     : &name "Kyle Murphy"
 description              : &description "personal description"
-url                      : https://mshumko.github.io # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+url                      : https://krmurphy.github.io # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
-repository               : "mshumko/mshumko.github.io"
+repository               : "krmurphy/krmurphy.github.io"
 teaser                   :  # filename of teaser fallback teaser image placed in /images/, .e.g. "500x300.png"
 breadcrumbs              : false # true, false (default)
 words_per_minute         : 160
@@ -80,14 +80,14 @@ analytics:
 
 # Site Author
 author:
-  name             : "Mykhaylo Shumko"
+  name             : "Kyle Murphy"
   avatar           : "profile.png"
-  bio              : "NASA Postdoctoral Fellow"
+  bio              : "Faculty Researcher"
   location         : "Bozeman, Montana"
-  employer         : "NASA's Goddard Space Flight Center"
+  employer         : "UMD/NASA GSFC"
   pubmed           : 
-  googlescholar    : "https://scholar.google.com/citations?user=ivCgfPQAAAAJ&hl=en"
-  email            :  "msshumko at gmail"
+  googlescholar    : "https://scholar.google.es/citations?hl=en&pli=1&user=n8I0sAwAAAAJ"
+  email            :  "kylemurphy.spacephys at gmail"
   researchgate     :  # example: "https://www.researchgate.net/profile/yourprofile"
   uri              :
   bitbucket        :
@@ -96,7 +96,7 @@ author:
   flickr           :
   facebook         :
   foursquare       :
-  github           : "mshumko"
+  github           : "kylermurphy"
   google_plus      :
   keybase          :
   instagram        :

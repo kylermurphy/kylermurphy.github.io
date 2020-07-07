@@ -120,4 +120,8 @@
 {% endif %}
     </ul>
   </div>
+
+{% if author.location %}
+  <img src="{{ author.scholar | prepend: "/images/" | prepend: base_path }}" alt="{{ author.name }}">
+{% endif}
 </div>

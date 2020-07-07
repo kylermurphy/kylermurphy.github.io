@@ -115,10 +115,12 @@
 
   @include breakpoint($large) {
     display: block;
+    width: 100%;
   }
 
   @include breakpoint($x-large) {
     display: block;
+    width: 100%;
   }
 }
 

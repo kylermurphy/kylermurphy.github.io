@@ -120,4 +120,14 @@
       {% endif %}
     </ul>
   </div>
+
+  <div class="author__content">
+    {% if author.scholar %}
+      {% if author.scholar contains "://" %}
+        <img src="{{ author.scholar }}" alt="{{ author.name }}">
+      {% else %}
+        <img src="{{ author.scholar | prepend: "/images/" | prepend: base_path }}">
+      {% endif %}
+    {% endif %}
+  </div>
 </div>

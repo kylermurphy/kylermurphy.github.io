@@ -121,13 +121,13 @@
     </ul>
   </div>
 
-  <div class="author__content">
+  <div class="author__scholar">
     <br>
     {% if author.scholar %}
       {% if author.scholar contains "://" %}
         <img src="{{ author.scholar }}" alt="{{ author.name }}">
       {% else %}
-        <img src="{{ author.scholar | prepend: "/images/" | prepend: base_path }}" class="author__content">
+        <img src="{{ author.scholar | prepend: "/images/" | prepend: base_path }}">
       {% endif %}
     {% endif %}
   </div>

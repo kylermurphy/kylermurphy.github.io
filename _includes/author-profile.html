@@ -121,7 +121,7 @@
     </ul>
   </div>
 
-{% if author.scholar %}
-  <img src="{{ author.scholar | prepend: "/images/" | prepend: base_path }}" alt="{{ author.name }}">
-{% endif}
+  {% if author.scholar %}
+    <img src="{{ author.scholar | prepend: "/images/" | prepend: base_path }}" alt="{{ author.name }}">
+  {% endif}
 </div>

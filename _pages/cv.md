@@ -9,7 +9,32 @@ redirect_from:
 
 {% include base_path %}
 
-### Work Experience
+### Employment
+
+<p style="margin-left: 40px"><b>Assistant Researcher</b>
+<br>Department of Astronomy
+<br>University of Maryland
+<br><i>Feb 2017 — present</i></p>
+
+<p style="margin-left: 40px"><b>Researcher</b>
+<br>Universities Space 
+<br>Research Association
+<br><i>2016 — Feb 2017</i></p>
+
+<p style="margin-left: 40px"><b>NSERC PDF</b>
+<br>NASA Goddard
+<br>Space Flight Center
+<br><i>2014 — 2016</i></p>
+
+<p style="margin-left: 40px"><b>Research Assistant</b>
+<br>Department of Physics
+<br>University of Alberta
+<br><i>2007 - 2014</i></p>
+
+<p style="margin-left: 40px"><b>Teaching Assistant</b>
+<br>Department of Physics
+<br>University of Alberta
+<br><i>2005 - 2011</i></p>
 
 ### Education
 

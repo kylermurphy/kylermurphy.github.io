@@ -11,9 +11,9 @@ title                    : "Kyle Murphy"
 title_separator          : "-"
 name                     : &name "Kyle Murphy"
 description              : &description "personal description"
-url                      : https://krmurphy.github.io # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+url                      : https://kylermurphy.github.io # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
-repository               : "krmurphy/krmurphy.github.io"
+repository               : "kylermurphy/kylermurphy.github.io"
 teaser                   :  # filename of teaser fallback teaser image placed in /images/, .e.g. "500x300.png"
 breadcrumbs              : false # true, false (default)
 words_per_minute         : 160
@@ -83,7 +83,7 @@ author:
   name             : "Kyle Murphy"
   avatar           : "profile.png"
   bio              : "Faculty Researcher"
-  location         : "Bozeman, Montana"
+  location         : "Maryland"
   employer         : "UMD/NASA GSFC"
   pubmed           : 
   googlescholar    : "https://scholar.google.es/citations?hl=en&pli=1&user=n8I0sAwAAAAJ"

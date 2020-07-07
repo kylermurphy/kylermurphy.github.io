@@ -39,8 +39,8 @@ redirect_from:
 ### Education
 
 - Ph.D, Physics - University of Alberta, 2013
-- M.Sc. Physics - University of Alberta, 2009
-- B.Sc. Specialization in Astrophysics - University of Alberta _First Class Standing_, 2007
+- M.Sc., Physics - University of Alberta, 2009
+- B.Sc., Specialization in Astrophysics - University of Alberta _First Class Standing_, 2007
 
 ### Teaching
 

@@ -121,14 +121,14 @@
 }
 
 .author__scholar {
-  display: table-cell;
+  display: none;
   vertical-align: top;
   padding-left: 15px;
   padding-right: 25px;
   line-height: 1;
 
   @include breakpoint($large) {
-    display: none;
+    display: block;
   }
 }
 

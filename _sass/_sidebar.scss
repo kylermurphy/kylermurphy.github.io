@@ -108,11 +108,14 @@
   }
 
   img {
-    display: none;
-    max-width: 0px;
+    max-width: 175px;
 
     @include breakpoint($large) {
-      max-width: 400px;
+      display: none;
+    }
+
+    @include breakpoint($x-large) {
+      display: none;
     }
   }
 }

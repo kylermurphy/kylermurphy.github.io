@@ -107,17 +107,6 @@
     padding-right: 0;
   }
 
-  img {
-    display: block;
-
-    @include breakpoint($large) {
-      display: none;
-    }
-
-    @include breakpoint($x-large) {
-      display: none;
-    }
-  }
 }
 
 .author__scholar {
@@ -128,6 +117,10 @@
   line-height: 1;
 
   @include breakpoint($large) {
+    display: block;
+  }
+
+  @include breakpoint($x-large) {
     display: block;
   }
 }

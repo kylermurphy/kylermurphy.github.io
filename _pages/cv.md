@@ -67,3 +67,7 @@ redirect_from:
 | Academic Excellence Scholarship | 2002 |
 
 ## Publications
+
+<ul>{% for post in site.publications %}
+    {% include archive-single-cv.html %}
+  {% endfor %}</ul>

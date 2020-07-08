@@ -1,0 +1,12 @@
+---
+title: "Comprehensive ground-based and in situ observations of substorm expansion phase onset"
+collection: publications
+permalink: /publication/2010-Walsh
+date: 2010
+venue: 'Journal of Geophysical Research: Space Physics'
+paperurl: '10.1029/2010JA015748'
+citation: 'Walsh, A. P., Rae, I. J., Fazakerley, A. N., Murphy, K. R., Mann, I. R., Watt, C. E. J., et al. (2010). Comprehensive ground-based and in situ observations of substorm expansion phase onset. Journal of Geophysical Research: Space Physics, 115(12), 1-15. https://doi.org/10.1029/2010JA015748'
+---
+[Download paper here](10.1029/2010JA015748)
+
+Recommended citation: Walsh, A. P., Rae, I. J., Fazakerley, A. N., Murphy, K. R., Mann, I. R., Watt, C. E. J., et al. (2010). Comprehensive ground-based and in situ observations of substorm expansion phase onset. Journal of Geophysical Research: Space Physics, 115(12), 1-15. https://doi.org/10.1029/2010JA015748

@@ -68,6 +68,6 @@ redirect_from:
 
 ## Publications
 
-<ul>{% for post in site.publications %}
-    {% include archive-single-cv.html %}
+<ul>{% for post in site.publications reversed %}
+    {% include archive-single-cv-pub.html %}
   {% endfor %}</ul>

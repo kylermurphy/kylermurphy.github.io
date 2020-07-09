@@ -42,7 +42,8 @@ redirect_from:
 - Introduction to Astrophysical Programming (UMD)
   - Introduces students to UNIX and running commands within a Linux, Mac, and Windows Bash/Windows Subsystem for Linux terminal. Learn the basics of scientific programming including good programming style, data types, control flow, numerical methods and scientific analysis, and visualization. Introduces students to version control via Git and GitHub.
 - First and Second Year Physics Labs (UofA)
-  - Taught labs of up to 60 students, developed weekly lectures introducing students to the fundamentals of scientific analysis, reporting, and computational analysis.
+  - Taught labs of up to 60 students.
+  - Developed weekly lectures introducing students to the fundamentals of scientific analysis, reporting, and computational analysis.
 
 ## Awards
 

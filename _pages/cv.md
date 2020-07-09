@@ -12,7 +12,7 @@ redirect_from:
 ## Employment
 
 <p style="margin-left: 40px">
-<b>Assistant Researcher</b>, Department of Astronomy University of Maryland
+<b>Assistant Researcher</b>, Department of Astronomy University of Maryland, NASA Goddard Space Flight Center Contractor
 <br><i>Feb 2017 — present</i></p>
 
 <p style="margin-left: 40px">
@@ -40,7 +40,7 @@ redirect_from:
 ## Teaching
 
 - Introduction to Astrophysical Programming (UMD)
-  - Introduces students to UNIX and running commands within a Linux, Mac, and Windows Bash/Windows Subsystem for Linux terminal. Learn the basics of scientific programming including good programming style, data types, control flow, numerical methods and scientific analysis, and visualization. Introduce students to versrion control via Git and GitHub.
+  - Introduces students to UNIX and running commands within a Linux, Mac, and Windows Bash/Windows Subsystem for Linux terminal. Learn the basics of scientific programming including good programming style, data types, control flow, numerical methods and scientific analysis, and visualization. Introduces students to version control via Git and GitHub.
 - First and Second Year Physics Labs (UofA)
   - Taught labs of up to 60 students, developed weekly lectures introducing students to the fundamentals of scientific analysis, reporting, and computational analysis.
 

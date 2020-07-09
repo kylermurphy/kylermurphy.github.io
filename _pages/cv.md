@@ -12,23 +12,23 @@ redirect_from:
 ## Employment
 
 <p style="margin-left: 40px">
-<b>Assistant Researcher</b> Department of Astronomy University of Maryland
+<b>Assistant Researcher</b>, Department of Astronomy University of Maryland
 <br><i>Feb 2017 — present</i></p>
 
 <p style="margin-left: 40px">
-<b>Researcher</b> Universities Space  Research Association
+<b>Researcher</b>, Universities Space  Research Association
 <br><i>2016 — Feb 2017</i></p>
 
 <p style="margin-left: 40px">
-<b>NSERC PDF</b> NASA Goddard Space Flight Center
+<b>NSERC PDF</b>, NASA Goddard Space Flight Center
 <br><i>2014 — 2016</i></p>
 
 <p style="margin-left: 40px">
-<b>Research Assistant</b> Department of Physics University of Alberta
+<b>Research Assistant</b>, Department of Physics University of Alberta
 <br><i>2007 - 2014</i></p>
 
 <p style="margin-left: 40px">
-<b>Teaching Assistant</b> Department of Physics University of Alberta
+<b>Teaching Assistant</b>, Department of Physics University of Alberta
 <br><i>2005 - 2011</i></p>
 
 ## Education

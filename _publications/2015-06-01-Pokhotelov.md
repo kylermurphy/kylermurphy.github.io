@@ -2,6 +2,7 @@
 title: "The influence of solar wind variability on magnetospheric ULF wave power"
 collection: publications
 permalink: /publication/2015-06-01-Pokhotelov
+excerpt: ' '
 date: 2015-06-01
 venue: 'Annales Geophysicae'
 paperurl: 'https://doi.org/10.5194/angeo-33-697-2015'

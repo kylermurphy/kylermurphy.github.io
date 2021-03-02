@@ -8,7 +8,7 @@ redirect_from:
   - /about.html
 ---
 
-I am an Assistant Researcher at the University of Maryland's Department of Astronomy and Contractor at NASA's Goddard Space Flight Center. My research focus is in Space Weather and the dynamics of the magnetosphere during Geomagnetic Storms and Substorms.
+I am an Independent Contractor working In Thunder Bay. I am an expert in data and statistical analysis with a research focus in Space Weather and the dynamics of the magnetosphere during geomagnetic storms and substorms. As a contractor I provide expertise in research and analysis, project management and proposal development. Having worked in academia for over 15 years I have also developed a clear teaching philosophy that focuses on engaging students and developing vital soft and critical thinking skills.
 
 ## Recent Work
 

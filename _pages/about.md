@@ -8,7 +8,7 @@ redirect_from:
   - /about.html
 ---
 
-I am an Independent Contractor working In Thunder Bay. I am an expert in data and statistical analysis with a research focus in Space Weather and the dynamics of the magnetosphere during geomagnetic storms and substorms. As a contractor I provide expertise in research and analysis, project management and proposal development. Having worked in academia for over 15 years I have also developed a clear teaching philosophy that focuses on engaging students and developing vital soft and critical thinking skills.
+I am an Independent Contractor working in Thunder Bay. I am an expert in data and statistical analysis with a research focus in Space Weather and the dynamics of the magnetosphere during geomagnetic storms and substorms. As a contractor I provide expertise in research and analysis, project management, and proposal development. Having worked in academia for over 15 years I have also developed a clear teaching philosophy that focuses on engaging students and developing vital soft and critical thinking skills.
 
 ## Recent Work
 

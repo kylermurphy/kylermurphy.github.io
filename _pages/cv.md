@@ -12,12 +12,15 @@ redirect_from:
 ## Employment
 
 <p style="margin-left: 40px">
+<b>Project Manager/Data Analyst</b>, Indpendent Contractor, Thunder Bay Ontario
+<br><i>Feb 2021 — Present</i></p>
+
 <b>Assistant Researcher</b>, Department of Astronomy University of Maryland, NASA Goddard Space Flight Center Contractor
-<br><i>Feb 2017 — present</i></p>
+<br><i>2017 —  2021</i></p>
 
 <p style="margin-left: 40px">
 <b>Researcher</b>, Universities Space  Research Association
-<br><i>2016 — Feb 2017</i></p>
+<br><i>2016 — 2017</i></p>
 
 <p style="margin-left: 40px">
 <b>NSERC PDF</b>, NASA Goddard Space Flight Center
@@ -49,6 +52,8 @@ redirect_from:
 
 |                         | Date |
 |-------------------------|------|
+| NASA Early Career Public Achievement Medal | 2020 |
+| NASA Heliophysics Science Division Peer Award | 2020 |
 | NASA Heliophysics Science Division Peer Award | 2015 |
 | NSERC Postdoctoral Fellowship | 2014 |
 | Excellence in Science and Technology Public Awareness | 2013 |

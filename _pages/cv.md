@@ -15,6 +15,7 @@ redirect_from:
 <b>Project Manager/Data Analyst</b>, Indpendent Contractor, Thunder Bay Ontario
 <br><i>Feb 2021 — Present</i></p>
 
+<p style="margin-left: 40px">
 <b>Assistant Researcher</b>, Department of Astronomy University of Maryland, NASA Goddard Space Flight Center Contractor
 <br><i>2017 —  2021</i></p>
 

@@ -12,7 +12,7 @@ I am an Independent Contractor working in Thunder Bay. I am an expert in statist
 
 ## Recent Work
 
-**Research:** My new paper [Understanding and Modeling the Dynamics of Storm-Time Atmospheric Neutral Density Using Random Forests][1] highlights the importance of geomagnetic storms in the dynamics of atmospheric neutral density. The paper also provides a new machine learning model for predicting atmospheric neutral density using random forests. The new machine learning model can be found on [GitHub][2] and [Zenodo][3]. An [example Jupyter notebook][4] walks users through how derive model predictions  
+**Research:** My new paper [Understanding and Modeling the Dynamics of Storm-Time Atmospheric Neutral Density Using Random Forests][1] highlights the importance of geomagnetic storms in the dynamics of atmospheric neutral density. The paper also provides a new machine learning model for predicting atmospheric neutral density using random forests. The new machine learning model can be found on [GitHub][2] and [Zenodo][3]. An [example Jupyter notebook][4] walks users through how derive model predictions.  
 
 **Communication and Service:** The [Magnetosphere Online Seminar Series][5] was established in response to the cancelation of several scientific meetings and to encourage continued interaction within the Space Physics community during the Covid-19 pandemic. The series hosts seminars on Zoom and YouTube live streams and watch previous seminars on the [YouTube channel][6].
 

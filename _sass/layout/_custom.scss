@@ -320,3 +320,27 @@ details {
   .masthead, .sidebar, .page__footer, .cv-actions, .hero .btn { display: none !important; }
   details { display: block; }
 }
+
+/* The theme sets `.page__content p, .page__content li { font-size: 1em }`,
+   which outranks single-class rules above. Re-assert sizes with matching specificity. */
+.page__content {
+  .hero__kicker, .card__kicker, .tags li { font-size: $type-size-7; }
+  .hero__kicker { font-size: $type-size-6; }
+  .card__text, .card__links, .cv-job__org, .cv-pub, .skill-card p { font-size: $type-size-6; }
+  .stats__label { font-size: $type-size-6; }
+}
+
+/* Keep the footer in normal flow instead of pinned over the content */
+.page__footer {
+  position: relative;
+}
+
+/* Readable secondary buttons */
+.cv-actions .btn--inverse {
+  color: var(--global-base-color) !important;
+  border: 1px solid var(--global-base-color) !important;
+}
+.page__content .cv-pub .archive__item-excerpt {
+  font-size: 0.9em;
+  opacity: 0.85;
+}

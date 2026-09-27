@@ -176,6 +176,10 @@ exclude:
   - Capfile
   - config
   - Dockerfile
+  - AGENTS.md
+  - README.md
+  - docker-compose.yaml
+  - markdown_generator
   - Gemfile
   - Gruntfile.js
   - gulpfile.js

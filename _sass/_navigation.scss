@@ -388,6 +388,15 @@
   }
 }
 
+/* inline TOC: sits in the text column instead of the right sidebar */
+.toc--inline {
+  margin-bottom: 2em;
+
+  @include breakpoint($large) {
+    max-width: 50%;
+  }
+}
+
 .toc__menu {
   margin: 0;
   padding: 0;

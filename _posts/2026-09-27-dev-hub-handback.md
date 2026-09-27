@@ -23,7 +23,7 @@ keeping its own bookkeeping, and you then apply the patches, push, and open and 
 This post covers setting it up, running a task and applying the handback. The bookkeeping
 details are under *Going further*, as optional reading.
 
-{% include toc title="Contents" icon="file-text" %}
+{% include toc title="Contents" icon="file-text" inline=true %}
 
 ## Set it up
 

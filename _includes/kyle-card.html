@@ -1,0 +1,19 @@
+{% comment %} Project card. usage: {% include kyle-card.html item=post %} {% endcomment %}
+{% include base_path %}
+{% assign it = include.item %}
+<article class="card">
+  <a class="card__img-link" href="{{ base_path }}{{ it.url }}" aria-label="{{ it.title }}">
+  {% if it.image %}
+    <span class="card__img"><img src="{{ base_path }}{{ it.image }}" alt="" loading="lazy"></span>
+  {% else %}
+    <span class="card__icon"><i class="{{ it.icon | default: 'fa-solid fa-flask' }}" aria-hidden="true"></i></span>
+  {% endif %}
+  </a>
+  <div class="card__body">
+    {% if it.kicker %}<p class="card__kicker">{{ it.kicker }}</p>{% endif %}
+    <h3 class="card__title"><a href="{{ base_path }}{{ it.url }}">{{ it.title }}</a></h3>
+    <p class="card__text">{{ it.excerpt | strip_html }}</p>
+    {% if it.tags_list %}<ul class="tags">{% for t in it.tags_list %}<li>{{ t }}</li>{% endfor %}</ul>{% endif %}
+    {% if it.links %}<p class="card__links">{% for l in it.links %}<a href="{% if l.url contains '://' %}{{ l.url }}{% else %}{{ base_path }}{{ l.url }}{% endif %}">{{ l.label }} &rarr;</a>{% endfor %}</p>{% endif %}
+  </div>
+</article>

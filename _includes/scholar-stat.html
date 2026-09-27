@@ -1,0 +1,37 @@
+{%- comment -%}
+  One Google Scholar number, filled live by assets/js/scholar.js.
+  usage: include scholar-stat.html with key="citations.all"
+  key: dotted path into scholar.json `totals`, e.g. citations.all, h_index.since,
+       i10_index.all, publications.all
+  Build-time fallback comes from _data/scholar_fallback.yml; publications fall
+  back to the number of items in the _publications collection.
+{%- endcomment -%}
+{%- assign scholar_parts = include.key | split: "." -%}
+{%- assign scholar_group = scholar_parts[0] -%}
+{%- assign scholar_field = scholar_parts[1] -%}
+{%- if scholar_group == "publications" -%}
+  {%- if scholar_field == "since" -%}
+    {%- assign scholar_value = 0 -%}
+    {%- for pub in site.publications -%}
+      {%- assign pub_year = pub.date | date: "%Y" | plus: 0 -%}
+      {%- if pub_year >= site.data.scholar_fallback.since_year -%}
+        {%- assign scholar_value = scholar_value | plus: 1 -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- else -%}
+    {%- assign scholar_value = site.publications | size -%}
+  {%- endif -%}
+{%- else -%}
+  {%- assign scholar_value = site.data.scholar_fallback[scholar_group][scholar_field] -%}
+{%- endif -%}
+{%- comment -%} Thousands separators: walk the digits right-to-left. {%- endcomment -%}
+{%- assign scholar_digits = scholar_value | append: "" | split: "" | reverse -%}
+{%- assign scholar_text = "" -%}
+{%- for d in scholar_digits -%}
+  {%- if forloop.index0 > 0 -%}
+    {%- assign scholar_mod = forloop.index0 | modulo: 3 -%}
+    {%- if scholar_mod == 0 -%}{%- assign scholar_text = "," | append: scholar_text -%}{%- endif -%}
+  {%- endif -%}
+  {%- assign scholar_text = d | append: scholar_text -%}
+{%- endfor -%}
+<span data-scholar="{{ include.key }}">{{ scholar_text }}</span>

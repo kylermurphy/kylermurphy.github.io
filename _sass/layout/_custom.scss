@@ -1,7 +1,6 @@
 /* ==========================================================================
    SITE CUSTOMIZATIONS (Kyle Murphy)
    Kept in one file so future template upgrades only need this file,
-   the `author__scholar` block in _includes/author-profile.html,
    the inline option in _includes/toc, and the includes named kyle-*.html.
    ========================================================================== */
 
@@ -25,17 +24,9 @@ div.highlighter-rouge .highlight, figure.highlight .highlight {
   }
 }
 
-/* Google Scholar citation chart under the sidebar links */
-.author__scholar {
+/* No live date yet (scholar.json not loaded): drop the "updated ..." text */
+.scholar-updated:has([data-scholar-updated]:empty) {
   display: none;
-  margin-top: 1em;
-  @include breakpoint($large) {
-    display: block;
-  }
-  img {
-    max-width: 200px;
-    border-radius: $border-radius;
-  }
 }
 
 /* --------------------------------------------------------------------------
@@ -264,6 +255,27 @@ div.highlighter-rouge .highlight, figure.highlight .highlight {
    CV / resume page
    -------------------------------------------------------------------------- */
 
+/* Research impact row (compact variant of .stats) */
+.stats--impact {
+  gap: 0.6em;
+  margin: 0.5em 0 0.6em;
+  .stats__item {
+    padding: 0.7em 0.6em;
+  }
+  .stats__num {
+    font-size: 1.35em;
+  }
+}
+.stats__since {
+  display: block;
+  margin-top: 0.15em;
+  opacity: 0.8;
+}
+.impact-source {
+  margin: 0 0 1.5em;
+  opacity: 0.75;
+}
+
 .cv-summary {
   font-size: 1.05em;
   line-height: 1.6;
@@ -328,6 +340,7 @@ details {
   .hero__kicker { font-size: $type-size-6; }
   .card__text, .card__links, .cv-job__org, .cv-pub, .skill-card p { font-size: $type-size-6; }
   .stats__label { font-size: $type-size-6; }
+  .stats__since, .impact-source { font-size: $type-size-7; }
 }
 
 /* Keep the footer in normal flow instead of pinned over the content */

@@ -173,10 +173,4 @@
       {% endif %}      
     </ul>
   </div>
-
-  {% if author.scholar %}
-  <div class="author__scholar">
-    <a href="{{ author.googlescholar }}"><img src="{{ author.scholar | prepend: "/images/" | prepend: base_path }}" alt="Google Scholar citations per year" loading="lazy" /></a>
-  </div>
-  {% endif %}
 </div>

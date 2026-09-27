@@ -21,9 +21,9 @@ redirect_from:
 </section>
 
 <div class="stats">
-  <div class="stats__item"><span class="stats__num">100+</span><span class="stats__label">peer-reviewed publications</span></div>
-  <div class="stats__item"><span class="stats__num">20+</span><span class="stats__label">years in space physics research</span></div>
-  <div class="stats__item"><span class="stats__num">5</span><span class="stats__label">open-source Python packages</span></div>
+  <div class="stats__item"><span class="stats__num">{% include scholar-stat.html key="citations.all" %}</span><span class="stats__label">citations on Google Scholar</span></div>
+  <div class="stats__item"><span class="stats__num">{% include scholar-stat.html key="h_index.all" %}</span><span class="stats__label">h-index</span></div>
+  <div class="stats__item"><span class="stats__num">{% include scholar-stat.html key="publications.all" %}</span><span class="stats__label">peer-reviewed publications</span></div>
   <div class="stats__item"><span class="stats__num">NASA</span><span class="stats__label">Early Career Public Achievement Medal</span></div>
 </div>
 

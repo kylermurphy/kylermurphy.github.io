@@ -1,0 +1,15 @@
+# Google Scholar fallback numbers.
+# These are ONLY used if scholar.json can't be loaded in the browser:
+#   https://raw.githubusercontent.com/kylermurphy/scholar_plot/master/data/scholar.json
+# They are rendered at build time and replaced by assets/js/scholar.js when the
+# live JSON loads. Publication counts fall back to `site.publications | size`.
+since_year: 2020
+citations:
+  all: 3444
+  since: 1968
+h_index:
+  all: 34
+  since: 25
+i10_index:
+  all: 73
+  since: 62

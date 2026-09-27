@@ -17,6 +17,16 @@ redirect_from:
   <a class="btn btn--inverse" href="javascript:window.print()">Print / save as PDF</a>
 </div>
 
+## Research impact
+
+<div class="stats stats--impact">
+  <div class="stats__item"><span class="stats__num">{% include scholar-stat.html key="citations.all" %}</span><span class="stats__label">citations</span><span class="stats__label stats__since">{% include scholar-stat.html key="citations.since" %} since <span data-scholar-since>{{ site.data.scholar_fallback.since_year }}</span></span></div>
+  <div class="stats__item"><span class="stats__num">{% include scholar-stat.html key="h_index.all" %}</span><span class="stats__label">h-index</span><span class="stats__label stats__since">{% include scholar-stat.html key="h_index.since" %} since <span data-scholar-since>{{ site.data.scholar_fallback.since_year }}</span></span></div>
+  <div class="stats__item"><span class="stats__num">{% include scholar-stat.html key="i10_index.all" %}</span><span class="stats__label">i10-index</span><span class="stats__label stats__since">{% include scholar-stat.html key="i10_index.since" %} since <span data-scholar-since>{{ site.data.scholar_fallback.since_year }}</span></span></div>
+  <div class="stats__item"><span class="stats__num">{% include scholar-stat.html key="publications.all" %}</span><span class="stats__label">peer-reviewed publications</span></div>
+</div>
+<p class="impact-source">Source: <a href="{{ site.author.googlescholar }}">Google Scholar</a><span class="scholar-updated"> (updated <span data-scholar-updated></span>)</span></p>
+
 ## Core expertise
 
 <table class="skill-table">

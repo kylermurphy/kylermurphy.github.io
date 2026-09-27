@@ -23,7 +23,7 @@ repository               : "kylermurphy/kylermurphy.github.io"
 author:
   # Biographic information
   avatar           : "profile.png"
-  scholar          : "ScholarFig.png"   # citation chart under the sidebar links (custom)
+  scholar          : true   # show the Google Scholar chart under the sidebar links (custom; images from github.com/kylermurphy/scholar_plot)
   name             : "Kyle Murphy"
   pronouns         : # example: "she/her"  
   bio              : "Space weather scientist · ML & data science consultant"

@@ -1,0 +1,17 @@
+---
+layout: archive
+title: "Portfolio"
+permalink: /portfolio/
+author_profile: true
+---
+
+{% include base_path %}
+
+<p>Selected projects: models, open-source software, and research I've built or led. Each card links to a short write-up with the problem, what I did, and where to find the code or paper.</p>
+
+{% assign items = site.portfolio | sort: "order" %}
+<div class="card-grid card-grid--3">
+{% for post in items %}
+  {% include kyle-card.html item=post %}
+{% endfor %}
+</div>

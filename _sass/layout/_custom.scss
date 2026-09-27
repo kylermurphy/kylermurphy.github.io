@@ -1,0 +1,346 @@
+/* ==========================================================================
+   SITE CUSTOMIZATIONS (Kyle Murphy)
+   Kept in one file so future template upgrades only need this file,
+   the `author__scholar` block in _includes/author-profile.html,
+   the inline option in _includes/toc, and the includes named kyle-*.html.
+   ========================================================================== */
+
+/* Smaller inline + block code (carried over from the old site) */
+p > code, li > code, td > code, a > code, figcaption > code {
+  font-size: 0.8em;
+}
+div.highlighter-rouge .highlight, figure.highlight .highlight {
+  font-size: 0.8em;
+}
+.notice code, .notice--primary code, .notice--info code, .notice--warning code {
+  font-size: 1em !important;
+}
+
+/* Inline TOC: sits in the text column instead of the right sidebar
+   usage: {% include toc title="Contents" inline=true %} */
+.toc--inline {
+  margin-bottom: 2em;
+  @include breakpoint($large) {
+    max-width: 50%;
+  }
+}
+
+/* Google Scholar citation chart under the sidebar links */
+.author__scholar {
+  display: none;
+  margin-top: 1em;
+  @include breakpoint($large) {
+    display: block;
+  }
+  img {
+    max-width: 200px;
+    border-radius: $border-radius;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Landing page
+   -------------------------------------------------------------------------- */
+
+.hero {
+  margin: 0 0 2em;
+  padding: 1.75em 1.75em 1.5em;
+  border-radius: 10px;
+  color: #fff;
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(82, 173, 200, 0.55) 0%, rgba(82, 173, 200, 0) 55%),
+    radial-gradient(90% 120% at 0% 100%, rgba(98, 196, 98, 0.35) 0%, rgba(98, 196, 98, 0) 60%),
+    linear-gradient(135deg, #0b2a3a 0%, #134e63 55%, #1d6b80 100%);
+
+  &__kicker {
+    margin: 0 0 0.35em;
+    font-size: $type-size-6;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  &__title {
+    margin: 0 0 0.5em;
+    color: #fff;
+    font-size: 1.6em;
+    line-height: 1.25;
+    @include breakpoint($medium) {
+      font-size: 2em;
+    }
+  }
+  &__lede {
+    margin: 0 0 1.25em;
+    font-size: 1em;
+    line-height: 1.55;
+    opacity: 0.95;
+    a { color: #bfe9f5; }
+  }
+  .btn {
+    margin-right: 0.4em;
+    margin-bottom: 0.5em;
+  }
+  .btn--light {
+    color: #0b2a3a !important;
+    background: #fff;
+    &:hover { background: #e3f4f9; }
+  }
+  .btn--ghost {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.7) !important;
+    &:hover { background: rgba(255, 255, 255, 0.12); }
+  }
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75em;
+  margin: 0 0 2.25em;
+  @include breakpoint($medium) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  &__item {
+    padding: 0.9em 0.8em;
+    text-align: center;
+    border: 1px solid var(--global-border-color);
+    border-radius: 8px;
+  }
+  &__num {
+    display: block;
+    color: var(--global-base-color);
+    font-size: 1.6em;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  &__label {
+    display: block;
+    margin-top: 0.3em;
+    font-size: $type-size-6;
+    line-height: 1.3;
+  }
+}
+
+.section-title {
+  margin-top: 1.5em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--global-border-color);
+}
+
+/* Capability cards ("What I do") */
+.skills-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1em;
+  margin: 1em 0 2em;
+  @include breakpoint($medium) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.skill-card {
+  padding: 1em 1.1em;
+  border: 1px solid var(--global-border-color);
+  border-left: 4px solid var(--global-base-color);
+  border-radius: 6px;
+  h3 {
+    margin: 0 0 0.4em;
+    font-size: 1em;
+    i { margin-right: 0.35em; color: var(--global-base-color); }
+  }
+  p {
+    margin: 0;
+    font-size: $type-size-6;
+    line-height: 1.5;
+  }
+}
+
+/* Project / highlight cards (landing page + portfolio) */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.1em;
+  margin: 1em 0 2em;
+  @include breakpoint($medium) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @include breakpoint($x-large) {
+    &--3 { grid-template-columns: repeat(3, 1fr); }
+  }
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--global-border-color);
+  border-radius: 8px;
+  transition: $global-transition;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  }
+  &__img {
+    display: block;
+    aspect-ratio: 16 / 10;
+    background: #fff;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 16 / 10;
+    color: #fff;
+    font-size: 3em;
+    background: linear-gradient(135deg, #134e63 0%, #2f7f93 100%);
+  }
+  &__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 0.9em 1em 1em;
+  }
+  &__kicker {
+    margin: 0 0 0.25em;
+    color: var(--global-base-color);
+    font-size: $type-size-7;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  &__title {
+    margin: 0 0 0.4em;
+    font-size: 1.05em;
+    line-height: 1.3;
+    a { text-decoration: none; }
+  }
+  &__text {
+    flex: 1;
+    margin: 0 0 0.6em;
+    font-size: $type-size-6;
+    line-height: 1.5;
+  }
+  &__links {
+    margin: 0;
+    font-size: $type-size-6;
+    a { margin-right: 0.9em; white-space: nowrap; }
+  }
+}
+
+.tags {
+  margin: 0 0 0.6em;
+  padding: 0;
+  list-style: none;
+  li {
+    display: inline-block;
+    margin: 0 0.3em 0.3em 0;
+    padding: 0.1em 0.55em;
+    font-size: $type-size-7;
+    border: 1px solid var(--global-border-color);
+    border-radius: 999px;
+  }
+}
+
+/* Recent notes list on the landing page */
+.recent-notes {
+  margin: 0.5em 0 1em;
+  padding: 0;
+  list-style: none;
+  li {
+    padding: 0.45em 0;
+    border-bottom: 1px dashed var(--global-border-color);
+  }
+  time {
+    display: inline-block;
+    min-width: 6.5em;
+    font-size: $type-size-6;
+    opacity: 0.75;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   CV / resume page
+   -------------------------------------------------------------------------- */
+
+.cv-summary {
+  font-size: 1.05em;
+  line-height: 1.6;
+}
+.cv-actions {
+  margin: 0.5em 0 1.5em;
+  .btn { margin-right: 0.4em; }
+}
+.cv-job {
+  margin: 0 0 1.4em;
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0 1em;
+  }
+  &__role {
+    margin: 0;
+    font-size: 1em;
+  }
+  &__dates {
+    font-size: $type-size-6;
+    white-space: nowrap;
+    opacity: 0.8;
+  }
+  &__org {
+    margin: 0.1em 0 0.4em;
+    font-size: $type-size-6;
+    font-style: italic;
+  }
+  ul {
+    margin-top: 0.3em;
+    font-size: $type-size-6;
+  }
+}
+.skill-table {
+  display: table;
+  width: 100%;
+  font-size: $type-size-6;
+  td:first-child { width: 28%; font-weight: 700; }
+}
+
+.cv-pub {
+  margin-bottom: 0.7em;
+  font-size: $type-size-6;
+  line-height: 1.45;
+}
+details {
+  margin: 0.5em 0 1.5em;
+  summary { cursor: pointer; font-weight: 700; }
+}
+@media print {
+  .masthead, .sidebar, .page__footer, .cv-actions, .hero .btn { display: none !important; }
+  details { display: block; }
+}
+
+/* The theme sets `.page__content p, .page__content li { font-size: 1em }`,
+   which outranks single-class rules above. Re-assert sizes with matching specificity. */
+.page__content {
+  .hero__kicker, .card__kicker, .tags li { font-size: $type-size-7; }
+  .hero__kicker { font-size: $type-size-6; }
+  .card__text, .card__links, .cv-job__org, .cv-pub, .skill-card p { font-size: $type-size-6; }
+  .stats__label { font-size: $type-size-6; }
+}
+
+/* Keep the footer in normal flow instead of pinned over the content */
+.page__footer {
+  position: relative;
+}
+
+/* Readable secondary buttons */
+.cv-actions .btn--inverse {
+  color: var(--global-base-color) !important;
+  border: 1px solid var(--global-base-color) !important;
+}
+.page__content .cv-pub .archive__item-excerpt {
+  font-size: 0.9em;
+  opacity: 0.85;
+}

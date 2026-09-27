@@ -1,35 +1,78 @@
 ---
 permalink: /
-title: "About"
-excerpt: "About"
+title: "Kyle Murphy: space weather, machine learning, scientific software"
+hide_title: true
+excerpt: "Space weather scientist and independent consultant building machine-learning models, open-source tools, and research programs for satellite drag, orbit prediction, and space-weather risk."
 author_profile: true
-redirect_from: 
+redirect_from:
   - /about/
   - /about.html
 ---
 
-I am an Independent Contractor working in Thunder Bay. I am an expert in statistical analysis and machine learning with a research focus in Space Weather and the dynamics of the magnetosphere during geomagnetic storms and substorms. As a contractor I provide expertise in research and analysis, project management, proposal development, and machine learning. Having worked in academia for over 20 years I have also developed a clear teaching philosophy that focuses on engaging students and developing vital soft and critical thinking skills.
+{% include base_path %}
 
-## Recent Work
+<section class="hero">
+  <p class="hero__kicker">Space weather · Machine learning · Scientific software</p>
+  <h1 class="hero__title">I build models that predict how space weather affects satellites and the systems we rely on.</h1>
+  <p class="hero__lede">I'm Kyle Murphy, a space physicist and independent consultant in Thunder Bay, Ontario. I've spent 20+ years studying how geomagnetic storms reshape near-Earth space, at the University of Alberta and NASA Goddard. Today I turn that expertise into <strong>machine-learning models, open-source software, and research programs</strong> for teams working on satellite drag, orbit prediction, and space-weather risk.</p>
+  <a class="btn btn--light" href="{{ base_path }}/portfolio/">See my work</a>
+  <a class="btn btn--ghost" href="{{ base_path }}/cv/">CV / résumé</a>
+  <a class="btn btn--ghost" href="mailto:{{ site.author.email }}">Get in touch</a>
+</section>
 
-**Research:** My new paper [Understanding and Modeling the Dynamics of Storm-Time Atmospheric Neutral Density Using Random Forests][1] highlights the importance of geomagnetic storms in the dynamics of atmospheric neutral density. The paper also provides a new machine learning model for predicting atmospheric neutral density using random forests. The new machine learning model can be found on [GitHub][2] and [Zenodo][3]. An [example Jupyter notebook][4] walks users through how derive model predictions.  
+<div class="stats">
+  <div class="stats__item"><span class="stats__num">100+</span><span class="stats__label">peer-reviewed publications</span></div>
+  <div class="stats__item"><span class="stats__num">20+</span><span class="stats__label">years in space physics research</span></div>
+  <div class="stats__item"><span class="stats__num">5</span><span class="stats__label">open-source Python packages</span></div>
+  <div class="stats__item"><span class="stats__num">NASA</span><span class="stats__label">Early Career Public Achievement Medal</span></div>
+</div>
 
-**Communication and Service:** The [Magnetosphere Online Seminar Series][5] was established in response to the cancelation of several scientific meetings and to encourage continued interaction within the Space Physics community during the Covid-19 pandemic. The series hosts seminars on Zoom and YouTube live streams and watch previous seminars on the [YouTube channel][6].
+<h2 class="section-title">What I do</h2>
 
-**Projects:** [GMAG][7] is a Python module providing the utility to download and load data from various ground-based magnetometer arrays in a Pandas DataFrame. The [GMAG site][8] provides an overview of the module, a few examples, details for each [Array supported by the module][9], a [map][10] of magnetometer stations, and a [searchable table of the geographic and geomagnetic coordinates][11] of magnetometer stations in each array.
+<div class="skills-grid">
+  <div class="skill-card">
+    <h3><i class="fa-solid fa-satellite" aria-hidden="true"></i>Space weather &amp; atmospheric density</h3>
+    <p>Storm-time thermospheric density and satellite drag for LEO constellations, density derived from satellite orbits, radiation-belt dynamics, and ground-induced electric fields.</p>
+  </div>
+  <div class="skill-card">
+    <h3><i class="fa-solid fa-chart-line" aria-hidden="true"></i>Machine learning &amp; statistics</h3>
+    <p>Random forests and gradient boosting, time-series forecasting from solar and geomagnetic drivers, physics-informed feature engineering, storm-aware validation, and ensemble uncertainty.</p>
+  </div>
+  <div class="skill-card">
+    <h3><i class="fa-solid fa-code" aria-hidden="true"></i>Scientific software &amp; data pipelines</h3>
+    <p>Turning research code into installable, documented, tested Python packages. Multi-mission data ingestion, vectorization and parallel speed-ups, reproducible notebooks.</p>
+  </div>
+  <div class="skill-card">
+    <h3><i class="fa-solid fa-people-group" aria-hidden="true"></i>Research leadership &amp; communication</h3>
+    <p>Project management, proposal development, mission-concept studies, teaching scientific programming, and building community through an international seminar series.</p>
+  </div>
+</div>
 
-The most recent update of GMAG introduces a new module for deriving ground-based induced electric fields from magnetometer measurements. The the ```efield``` module provides routines to calculate the 1-D surface impedence and subsequently the induced electric field. Resistivity profiles for select stations are also provided along with a simple routine to read in these profiles. Additional profiles will be added soon.
+<h2 class="section-title">Featured work</h2>
 
+{% assign featured = site.portfolio | where: "featured", true | sort: "order" %}
+<div class="card-grid">
+{% for post in featured %}
+  {% include kyle-card.html item=post %}
+{% endfor %}
+</div>
+<p><a href="{{ base_path }}/portfolio/">See all projects &rarr;</a></p>
 
+<h2 class="section-title">Latest notes</h2>
+<ul class="recent-notes">
+{% for post in site.posts limit:4 %}
+  <li><time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %Y" }}</time> <a href="{{ base_path }}{{ post.url }}">{{ post.title }}</a></li>
+{% endfor %}
+</ul>
+<p><a href="{{ base_path }}/notes/">All notes &rarr;</a></p>
 
-[1]:https://doi.org/10.1029/2024SW003928
-[2]:https://github.com/kylermurphy/mltdm
-[3]:https://doi.org/10.5281/zenodo.15091438
-[4]:https://github.com/kylermurphy/mltdm/blob/main/Notebooks/RF_predict.ipynb
-[5]:https://msolss.github.io/MagSeminars/
-[6]:https://www.youtube.com/channel/UCNlOK9mCmI3V111EHQRCuEQ?view_as=subscriber
-[7]:https://github.com/kylermurphy/gmag
-[8]:https://kylermurphy.github.io/gmag/
-[9]:https://kylermurphy.github.io/gmag/arrays
-[10]:https://kylermurphy.github.io/gmag/stations
-[11]:https://kylermurphy.github.io/gmag/cgm_2000.html
+<h2 class="section-title">Work with me</h2>
+
+I work with research groups, agencies, and companies on:
+
+- **Density and drag modelling:** building, validating, or benchmarking thermospheric density models (empirical, ML, or orbit-derived) for storm conditions.
+- **Machine learning for space weather:** designing forecasting pipelines, choosing features and validation that respect storm physics, and reviewing existing models.
+- **Research software:** turning notebooks and scripts into maintainable packages with tests, docs, and CI.
+- **Proposals and science writing:** proposal development, mission science cases, and peer-reviewed papers.
+
+The quickest way to reach me is [email](mailto:{{ site.author.email }}).

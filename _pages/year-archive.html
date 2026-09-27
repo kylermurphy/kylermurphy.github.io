@@ -1,13 +1,17 @@
 ---
 layout: archive
-permalink: /year-archive/
-title: "Tips & Tricks"
+permalink: /notes/
+title: "Notes"
 author_profile: true
 redirect_from:
+  - /year-archive/
+  - /posts/
   - /wordpress/blog-posts/
 ---
 
 {% include base_path %}
+<p>Short, practical notes on Python, machine learning, and research tooling: fixes for problems I've hit, speed-ups, and write-ups of workflows I use. Browse by <a href="{{ base_path }}/tags/">topic</a>.</p>
+
 {% capture written_year %}'None'{% endcapture %}
 {% for post in site.posts %}
   {% capture year %}{{ post.date | date: '%Y' }}{% endcapture %}

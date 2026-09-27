@@ -1,0 +1,24 @@
+name: TEMP preview branch
+on:
+  push:
+    branches: [site-refresh]
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+      - run: bundle exec jekyll build
+        env:
+          JEKYLL_ENV: production
+      - run: |
+          cd _site
+          git init -q -b tmp-preview
+          git add -A
+          git -c user.name=ci -c user.email=ci@example.com commit -qm preview
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" tmp-preview

@@ -1,6 +1,6 @@
 ---
 title: 'dev-hub Handback Mode: Running Tasks from a Claude Project'
-date: 2026-09-27 10:00
+date: 2026-09-27
 permalink: /posts/2026/09/post-11/
 tags:
   - claude

@@ -1,0 +1,1278 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="https://kylermurphy.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kylermurphy.github.io/" rel="alternate" type="text/html" /><updated>2026-09-27T12:58:54+00:00</updated><id>https://kylermurphy.github.io/feed.xml</id><title type="html">Kyle Murphy</title><subtitle>Kyle Murphy: space weather scientist and machine learning consultant. Atmospheric density modelling, geomagnetic storms, and scientific software.</subtitle><author><name>Kyle Murphy</name><email>kylemurphy.spacephys@gmail.com</email></author><entry><title type="html">dev-hub Handback Mode: Running Tasks from a Claude Project</title><link href="https://kylermurphy.github.io/posts/2026/09/post-11/" rel="alternate" type="text/html" title="dev-hub Handback Mode: Running Tasks from a Claude Project" /><published>2026-09-27T00:00:00+00:00</published><updated>2026-09-27T00:00:00+00:00</updated><id>https://kylermurphy.github.io/posts/2026/09/dev-hub-handback</id><content type="html" xml:base="https://kylermurphy.github.io/posts/2026/09/post-11/"><![CDATA[<p>In my <a href="https://kylermurphy.github.io/posts/2026/09/post-10/">last post</a> I described
+<strong>dev-hub</strong>, a private GitHub repo that acts as mission control for Claude across my repos. Most
+of the time I run dev-hub tasks from Claude Code, either on my machine or on the web, where
+Claude can push branches and open pull requests itself.</p>
+
+<p>I also wanted a way for people without Claude Code to use <code class="language-plaintext highlighter-rouge">dev-hub</code>. <strong>Handback mode</strong> covers
+that case. It’s a claude.ai Project with dev-hub added as a read-only source and a set of custom
+instructions pasted in. Claude can’t push anything from there, so it does the work and <em>hands it
+back</em>: a patch per repo and the PR text. Once you confirm the PR, Claude marks the task done,
+keeping its own bookkeeping, and you then apply the patches, push, and open and merge the PR.</p>
+
+<p>This post covers setting it up, running a task and applying the handback. The bookkeeping
+details are under <em>Going further</em>, as optional reading.</p>
+
+<nav class="toc toc--inline">
+  <header><h4 class="nav__title"><i class="fa fa-file-text"></i> Contents</h4></header>
+<ul class="toc__menu" id="markdown-toc">
+  <li><a href="#set-it-up" id="markdown-toc-set-it-up">Set it up</a></li>
+  <li><a href="#running-a-task" id="markdown-toc-running-a-task">Running a task</a></li>
+  <li><a href="#applying-the-handback" id="markdown-toc-applying-the-handback">Applying the handback</a></li>
+  <li><a href="#good-to-know" id="markdown-toc-good-to-know">Good to know</a></li>
+  <li><a href="#going-further-optional" id="markdown-toc-going-further-optional">Going further (optional)</a>    <ul>
+      <li><a href="#the-working-copy" id="markdown-toc-the-working-copy">The working copy</a></li>
+      <li><a href="#the-ledger" id="markdown-toc-the-ledger">The ledger</a></li>
+      <li><a href="#the-sync-check" id="markdown-toc-the-sync-check">The sync check</a></li>
+      <li><a href="#closing-a-task-without-a-merge-check" id="markdown-toc-closing-a-task-without-a-merge-check">Closing a task without a merge check</a></li>
+      <li><a href="#whats-in-a-handback" id="markdown-toc-whats-in-a-handback">What’s in a handback</a></li>
+    </ul>
+  </li>
+</ul>
+
+</nav>
+
+<h2 id="set-it-up">Set it up</h2>
+
+<p>Setup is a one-time job of about ten minutes.</p>
+
+<ol>
+  <li><strong>Create a Project</strong> in claude.ai.</li>
+  <li><strong>Connect GitHub.</strong> In claude.ai, open <strong>Settings → Connectors</strong> and connect GitHub. Then, on
+GitHub, install the <a href="https://github.com/apps/claude">Claude GitHub App</a> on your dev-hub
+repo. dev-hub is private, so the Project can’t see it without the app.</li>
+  <li><strong>Add dev-hub to the Project’s files.</strong> In the Project, open <strong>Files</strong>, add a GitHub source,
+and pick dev-hub: branch <code class="language-plaintext highlighter-rouge">main</code>, the whole repo. This is the Project’s knowledge. Claude
+reads the board, the rules and the logs from it, but it can’t write back.</li>
+  <li><strong>Paste in the instructions.</strong> Copy
+<a href="https://github.com/kylermurphy/dev-hub-template/blob/main/templates/PROJECT_INSTRUCTIONS.md"><code class="language-plaintext highlighter-rouge">templates/PROJECT_INSTRUCTIONS.md</code></a>
+into the Project’s custom instructions. They tell Claude to follow dev-hub’s normal rules,
+with a few substitutions for not being able to push.</li>
+  <li><strong>Optional: turn on automatic approval</strong> of actions for the Project, so chats don’t stop to
+ask before each tool call.</li>
+</ol>
+
+<p>To check it works, start a chat in the Project and type <code class="language-plaintext highlighter-rouge">how-to</code>. Claude prints a short guide
+to the loop below.</p>
+
+<p>Then add your repos to the task board with <code class="language-plaintext highlighter-rouge">add-repo &lt;owner&gt;/&lt;repo&gt;</code>, <code class="language-plaintext highlighter-rouge">refresh-overview</code>, then
+<code class="language-plaintext highlighter-rouge">scan-repo &lt;name&gt;</code>:</p>
+
+<ul>
+  <li>Claude hands back a patch for the <code class="language-plaintext highlighter-rouge">dev-hub</code> repo with the updated task board.</li>
+  <li>Apply the patch on the <code class="language-plaintext highlighter-rouge">chore/</code> branch named in the PR text (see
+<a href="#applying-the-handback">Applying the handback</a>), then open and merge that PR, and you’re
+good to go.</li>
+</ul>
+
+<h2 id="running-a-task">Running a task</h2>
+
+<p>The commands are the same as in the rest of dev-hub: <code class="language-plaintext highlighter-rouge">plan-task</code>, <code class="language-plaintext highlighter-rouge">multi-task</code>, <code class="language-plaintext highlighter-rouge">scan-repo</code> and
+so on. A task goes like this:</p>
+
+<ol>
+  <li><strong>Name the task</strong>, e.g. <code class="language-plaintext highlighter-rouge">do task COOK-8</code>.</li>
+  <li><strong>Claude runs two checks</strong> before doing anything: whether any earlier task was left
+unfinished (flagged with 🚩), and whether dev-hub has changed since the last run.</li>
+  <li><strong>Claude does the work.</strong> It clones the target repo, makes the changes, tests what it can,
+and shows me the PR text.</li>
+  <li><strong>Claude keeps dev-hub’s bookkeeping.</strong> A Project can’t push or open PRs, so Claude can’t
+update dev-hub’s task log and board directly. Instead it tracks them in the Project itself
+and hands them back with the work. See <a href="#the-working-copy">The working copy</a> for how.</li>
+  <li><strong>I reply “looks good”.</strong> Claude runs <code class="language-plaintext highlighter-rouge">mark-done</code> and hands back one <code class="language-plaintext highlighter-rouge">.patch</code> per repo, plus
+a zip for each.</li>
+</ol>
+
+<p>Here’s what that looked like for COOK-8, which fixed two typos in recipe URLs on my recipe site:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>me:     do task COOK-8
+Claude: No unfinished work · dev-hub unchanged since 2026-09-25.
+        … renames both recipes, adds redirects from the old URLs …
+        Here's the PR for smurphs_cooking. Look good?
+me:     looks good
+Claude: Running mark-done COOK-8.
+        Handback: smurphs_cooking-COOK-8.patch, dev-hub-COOK-8.patch
+</code></pre></div></div>
+
+<p>There are two patches because a task touches two repos: the code change goes to the target
+repo, and the bookkeeping (the task log and the board status) goes to dev-hub.</p>
+
+<h2 id="applying-the-handback">Applying the handback</h2>
+
+<p>A task comes back as <strong>two handbacks</strong>, a patch and a zip for each repo it touched:</p>
+
+<ul>
+  <li><strong>the target repo</strong> (e.g. <code class="language-plaintext highlighter-rouge">smurphs_cooking-COOK-8.patch</code>): the code change, applied on a new
+branch and opened as a PR;</li>
+  <li><strong>dev-hub</strong> (e.g. <code class="language-plaintext highlighter-rouge">dev-hub-COOK-8.patch</code>): the bookkeeping (task log, <code class="language-plaintext highlighter-rouge">TASK_LOG.md</code> row and
+board status), applied straight to <code class="language-plaintext highlighter-rouge">main</code>.</li>
+</ul>
+
+<p>Each patch holds real commits, with their messages, not just the changed files. So applying one
+is a single <code class="language-plaintext highlighter-rouge">git am</code> command. Repeat these steps for each patch. I use GitHub Desktop:</p>
+
+<ol>
+  <li><strong>Open the repo</strong> and pull <code class="language-plaintext highlighter-rouge">main</code>.
+    <ul>
+      <li>Target repo: create the branch named in the PR text, from <code class="language-plaintext highlighter-rouge">main</code>.</li>
+      <li>dev-hub: stay on <code class="language-plaintext highlighter-rouge">main</code>, since the bookkeeping goes straight there.</li>
+    </ul>
+  </li>
+  <li><strong>Open a command line:</strong> Repository → <strong>Open in Command Prompt</strong>.</li>
+  <li><strong>Apply the patch:</strong>
+    <ul>
+      <li>
+        <p>Target repo, on the new branch:</p>
+
+        <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git am path_to_patch/smurphs_cooking-COOK-8.patch
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>dev-hub, on <code class="language-plaintext highlighter-rouge">main</code>:</p>
+
+        <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git am path_to_patch/dev-hub-COOK-8.patch
+</code></pre></div>        </div>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Push</strong>, and for the target repo, open the PR using the text Claude gave you.</li>
+  <li><strong>Re-sync the Project’s dev-hub source</strong>, so the next chat sees the change. The next chat’s
+checks confirm it landed.</li>
+</ol>
+
+<p>If <code class="language-plaintext highlighter-rouge">git am</code> fails, run <code class="language-plaintext highlighter-rouge">git am --abort</code> to clean up, and upload the changed files from the zip
+instead. A leftover “previous rebase directory still exists” error has the same fix.</p>
+
+<h2 id="good-to-know">Good to know</h2>
+
+<ul>
+  <li><strong>Keep each chat to one repo.</strong> Several chats can run at once, but two chats on the same repo
+can overwrite each other’s work. For several tasks in one repo, use <code class="language-plaintext highlighter-rouge">multi-task</code> in a single
+chat.</li>
+  <li><strong>Target repos must be public.</strong> Claude clones them anonymously, so a private target repo
+can’t be worked on here. (dev-hub itself can be private; it comes in through the Project’s
+files.)</li>
+  <li><strong>Some builds and tests can’t run.</strong> The Project’s sandbox blocks some package registries.
+For COOK-8, Claude couldn’t install the Ruby gems to build the Jekyll site, so it checked what
+it could and left the build checks in the PR for me to run before merging.</li>
+  <li><strong>Only finished work is handed back.</strong> If a task stops partway, Claude says so, and every
+later chat flags it with 🚩 until it’s resolved.</li>
+  <li><strong>Re-sync dev-hub regularly.</strong> The Project’s copy of dev-hub doesn’t update itself. Re-sync
+its GitHub source in the Project’s files after you apply a handback, and whenever dev-hub
+changes elsewhere. The next chat spots the new copy, clears the Project’s internal
+bookkeeping for everything that has landed, and starts fresh from it. See
+<a href="#the-sync-check">The sync check</a> for how.</li>
+</ul>
+
+<h2 id="going-further-optional">Going further (optional)</h2>
+
+<p>The sections below cover how handback mode keeps its books without being able to push.</p>
+
+<h3 id="the-working-copy">The working copy</h3>
+
+<div class="notice">
+
+  <p>Normal dev-hub sessions commit bookkeeping straight to dev-hub’s <code class="language-plaintext highlighter-rouge">main</code>. A Project can’t, so it
+keeps a <strong>working copy</strong> in the Project’s own docs, under <code class="language-plaintext highlighter-rouge">wc/</code>:</p>
+
+  <ul>
+    <li><code class="language-plaintext highlighter-rouge">wc/dev-hub/&lt;path&gt;</code> stands in for dev-hub <code class="language-plaintext highlighter-rouge">main</code>. A file is copied in the first time it
+changes, and Claude reads <code class="language-plaintext highlighter-rouge">wc/</code> first and the synced repo otherwise.</li>
+    <li><code class="language-plaintext highlighter-rouge">wc/&lt;repo&gt;/&lt;branch&gt;/</code> holds a target-repo branch as patches plus a <code class="language-plaintext highlighter-rouge">PR.md</code>. Claude rebuilds
+the branch by cloning the repo and applying them.</li>
+    <li>Every chat in the Project shares the working copy, which is why two chats on the same repo
+can collide: Project docs are replaced whole, not merged.</li>
+  </ul>
+
+  <p>Claude can only read the synced dev-hub in fragments, so the first working copy of a file is
+rebuilt from those pieces. The handback flags such files, and it’s worth checking GitHub’s diff
+shows only the intended changes.</p>
+
+</div>
+
+<h3 id="the-ledger">The ledger</h3>
+
+<div class="notice">
+
+  <p><code class="language-plaintext highlighter-rouge">wc/LEDGER.md</code> is the Project’s record of what’s been done. It has two parts:</p>
+
+  <ul>
+    <li><strong>Sync snapshot:</strong> the date of the last check and the document ID of every synced dev-hub
+file.</li>
+    <li><strong>Log:</strong> one row per action, with a status: <code class="language-plaintext highlighter-rouge">in progress</code>, <code class="language-plaintext highlighter-rouge">stopped</code> and
+<code class="language-plaintext highlighter-rouge">awaiting confirmation</code> are unfinished; <code class="language-plaintext highlighter-rouge">handed back</code> and <code class="language-plaintext highlighter-rouge">synced</code> are done.</li>
+  </ul>
+
+  <p>The unfinished statuses are what the 🚩 check at the start of each chat looks for.</p>
+
+</div>
+
+<h3 id="the-sync-check">The sync check</h3>
+
+<div class="notice">
+
+  <p>The second check at the start of each chat compares the snapshot’s document IDs with the
+current ones. A changed ID means that file’s content changed. If nothing changed, Claude says
+so in one line and carries on. If something did, it checks, before running anything, that:</p>
+
+  <ul>
+    <li><strong>handbacks landed:</strong> handed-back work now in the synced repo has its <code class="language-plaintext highlighter-rouge">wc/</code> files deleted and
+its rows set to <code class="language-plaintext highlighter-rouge">synced</code>;</li>
+    <li><strong>outside edits merge:</strong> a file I edited on GitHub that also has pending <code class="language-plaintext highlighter-rouge">wc/</code> edits gets
+merged, or waits for me if it can’t be merged cleanly;</li>
+    <li><strong>the rules still agree:</strong> if <code class="language-plaintext highlighter-rouge">CLAUDE.md</code>, <code class="language-plaintext highlighter-rouge">COMMANDS.md</code> or the templates changed, Claude
+summarizes the new rules and flags anything pending that no longer follows them;</li>
+    <li><strong>the board is consistent,</strong> using the same checks as <code class="language-plaintext highlighter-rouge">check-board</code>.</li>
+  </ul>
+
+</div>
+
+<h3 id="closing-a-task-without-a-merge-check">Closing a task without a merge check</h3>
+
+<div class="notice">
+
+  <p>Normally <code class="language-plaintext highlighter-rouge">mark-done</code> checks that the PR merged before setting <code class="language-plaintext highlighter-rouge">Done</code>. Here I open and merge the
+PR myself, after the handback, so Claude can’t check it. My “looks good” stands in for the
+merge check. The task log records <code class="language-plaintext highlighter-rouge">Done (PR confirmed &lt;date&gt;)</code> instead of
+<code class="language-plaintext highlighter-rouge">Done (merged &lt;date&gt;)</code>, and dev-hub gets one bookkeeping commit instead of separate <code class="language-plaintext highlighter-rouge">WIP</code> and
+<code class="language-plaintext highlighter-rouge">Done</code> commits.</p>
+
+  <p>“PR confirmed” isn’t “merged”, though. If a later sync check finds a confirmed task whose
+change never reached the target repo’s <code class="language-plaintext highlighter-rouge">main</code>, it flags it. I then merge the PR, or reopen the
+task with <code class="language-plaintext highlighter-rouge">pickup-task</code>.</p>
+
+</div>
+
+<h3 id="whats-in-a-handback">What’s in a handback</h3>
+
+<div class="notice">
+
+  <p>One zip per repo, holding:</p>
+
+  <ul>
+    <li>the changed files at their repo paths;</li>
+    <li>the <code class="language-plaintext highlighter-rouge">.patch</code>;</li>
+    <li>the PR text and branch name (target repo), or the commit message (dev-hub bookkeeping);</li>
+    <li>a list of files to delete, if any;</li>
+    <li>a <code class="language-plaintext highlighter-rouge">README.md</code> with the <code class="language-plaintext highlighter-rouge">git am</code> steps, using the real branch and patch names.</li>
+  </ul>
+
+  <p>Each patch is also sent on its own, named <code class="language-plaintext highlighter-rouge">&lt;repo&gt;-&lt;ID&gt;.patch</code>, so you can grab it without
+opening the zip.</p>
+
+</div>]]></content><author><name>Kyle Murphy</name><email>kylemurphy.spacephys@gmail.com</email></author><category term="claude" /><category term="ai agents" /><category term="workflow" /><category term="github" /><summary type="html"><![CDATA[In my last post I described dev-hub, a private GitHub repo that acts as mission control for Claude across my repos. Most of the time I run dev-hub tasks from Claude Code, either on my machine or on the web, where Claude can push branches and open pull requests itself.]]></summary></entry><entry><title type="html">dev-hub: Mission Control for Claude Across My Repos</title><link href="https://kylermurphy.github.io/posts/2026/09/post-10/" rel="alternate" type="text/html" title="dev-hub: Mission Control for Claude Across My Repos" /><published>2026-09-26T00:00:00+00:00</published><updated>2026-09-26T00:00:00+00:00</updated><id>https://kylermurphy.github.io/posts/2026/09/dev-hub</id><content type="html" xml:base="https://kylermurphy.github.io/posts/2026/09/post-10/"><![CDATA[<p>I have a handful of research and side-project repos that all need the same kind of upkeep:
+tests that were never written, dated packaging, automated checks (continuous integration, or CI)
+that don’t exist, outdated READMEs. None of it is hard, but it never makes it to the top of the
+list; <em>a lot of development stops once things work, as in plenty of research codebases</em>.</p>
+
+<p class="notice--primary">This is why I built <code class="language-plaintext highlighter-rouge">dev-hub</code>, a small private GitHub repo that acts as mission control for
+Claude to operate and work on small tasks across GitHub repos.</p>
+
+<p><code class="language-plaintext highlighter-rouge">dev-hub</code> holds no code. It holds a <strong>task board</strong> listing a set of tasks for every repo I
+track, a <strong>playbook</strong> of rules every Claude session follows to complete tasks and integrate
+changes into the GitHub repos, and a <strong>record</strong> of what each task did. I name a task, Claude
+works it on a branch, and I get back a pull request to review. My own dev-hub is private, but
+there’s a generic copy, <a href="https://github.com/kylermurphy/dev-hub-template"><strong>dev-hub-template</strong></a>
+(MIT), that you can fill in with your own repos.</p>
+
+<p>The first half of this post gets you started and covers the key pieces. Everything under
+<em>Going further</em> is optional reading and dives deeper into how <code class="language-plaintext highlighter-rouge">dev-hub</code> works.</p>
+
+<nav class="toc toc--inline">
+  <header><h4 class="nav__title"><i class="fa fa-file-text"></i> Contents</h4></header>
+<ul class="toc__menu" id="markdown-toc">
+  <li><a href="#try-it" id="markdown-toc-try-it">Try it</a></li>
+  <li><a href="#how-it-works" id="markdown-toc-how-it-works">How it works</a>    <ul>
+      <li><a href="#github-is-the-hub" id="markdown-toc-github-is-the-hub">GitHub is the hub</a></li>
+      <li><a href="#whats-in-the-repo" id="markdown-toc-whats-in-the-repo">What’s in the repo</a></li>
+      <li><a href="#plan--launch--track--land" id="markdown-toc-plan--launch--track--land">Plan → Launch → Track → Land</a></li>
+    </ul>
+  </li>
+  <li><a href="#the-commands" id="markdown-toc-the-commands">The commands</a></li>
+  <li><a href="#the-task-board" id="markdown-toc-the-task-board">The task board</a>    <ul>
+      <li><a href="#reading-the-board" id="markdown-toc-reading-the-board">Reading the board</a></li>
+    </ul>
+  </li>
+  <li><a href="#where-it-runs" id="markdown-toc-where-it-runs">Where it runs</a></li>
+  <li><a href="#going-further-optional" id="markdown-toc-going-further-optional">Going further (optional)</a>    <ul>
+      <li><a href="#a-worked-example-gmag-1" id="markdown-toc-a-worked-example-gmag-1">A worked example: GMAG-1</a></li>
+      <li><a href="#batches" id="markdown-toc-batches">Batches</a></li>
+      <li><a href="#overnight-runs" id="markdown-toc-overnight-runs">Overnight runs</a></li>
+      <li><a href="#subagents" id="markdown-toc-subagents">Subagents</a></li>
+      <li><a href="#memory" id="markdown-toc-memory">Memory</a></li>
+      <li><a href="#other-coding-agents" id="markdown-toc-other-coding-agents">Other coding agents</a></li>
+    </ul>
+  </li>
+</ul>
+
+</nav>
+
+<h2 id="try-it">Try it</h2>
+
+<p>Getting started takes four steps:</p>
+
+<ol>
+  <li>Create a <strong>private</strong> repo from
+<a href="https://github.com/kylermurphy/dev-hub-template">dev-hub-template</a>. It holds your plans and
+tasks, so keeping it private is a good idea, though not necessary.</li>
+  <li>Open it in Claude Code, or in <a href="https://claude.ai/code">claude.ai/code</a> with the repo
+attached, and run <code class="language-plaintext highlighter-rouge">add-repo &lt;owner&gt;/&lt;repo&gt;</code> for each project you want tracked.
+    <ul>
+      <li><strong>Using claude.ai/code or a Claude Project?</strong> Connect GitHub in claude.ai
+(<strong>Settings → Connectors</strong>) and install the
+<a href="https://github.com/apps/claude">Claude GitHub App</a> on GitHub. Installing it on all your
+repos is easiest, but you can select only the ones you add to <code class="language-plaintext highlighter-rouge">dev-hub</code>.</li>
+    </ul>
+  </li>
+  <li>Run <code class="language-plaintext highlighter-rouge">refresh-overview</code>, then <code class="language-plaintext highlighter-rouge">scan-repo &lt;name&gt;</code> to get a first task table for that repo.</li>
+  <li>Pick a small (<strong>S</strong>) task and run <code class="language-plaintext highlighter-rouge">plan-task &lt;ID&gt;</code>.</li>
+</ol>
+
+<p>A first session with one of my repos looked like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>add-repo kylermurphy/gmag   # track the repo; it gets the prefix GMAG-
+scan-repo gmag              # Claude proposes GMAG-1 … GMAG-5; I merge the board PR
+plan-task GMAG-1            # we agree on the approach; the plan is saved; work starts
+                            # Claude opens a gmag PR; I review and merge it
+mark-done GMAG-1            # mark it done on the task board, log finalized, learnings saved
+</code></pre></div></div>
+
+<p>The template’s
+<a href="https://github.com/kylermurphy/dev-hub-template/tree/main/examples"><code class="language-plaintext highlighter-rouge">examples/</code></a> folder walks
+through the same steps on an imaginary repo, from an empty board to a finished task.</p>
+
+<h2 id="how-it-works">How it works</h2>
+
+<h3 id="github-is-the-hub">GitHub is the hub</h3>
+
+<p>Claude can work on code in a few places: <a href="https://code.claude.com">Claude Code</a> on my machine,
+Claude Code on the web or app (good for running from a mobile device), or a claude.ai Project
+(good if you don’t have access to Claude Code). These can’t see each other, and a chat’s
+context is gone once it ends. <strong>GitHub is the one thing they can all reach</strong>, so all state
+lives there. Any session can pick up any task from its board row and log alone.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  Phone / browser ──► claude.ai/code ─┐
+                                      ├──► GitHub ◄── I review + merge
+  My computer ─────► Claude Code ─────┘      │
+                                             │
+  dev-hub (board, rules, logs, per-repo instructions) ─ read by every session
+</code></pre></div></div>
+
+<h3 id="whats-in-the-repo">What’s in the repo</h3>
+
+<p>Everything is plain markdown:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>File</th>
+      <th>What it is</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">TASK_BOARD.md</code></td>
+      <td>The backlog: tracked repos, an overview of each, and one task table per repo.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">CLAUDE.md</code></td>
+      <td>The rules for Claude, including the full <strong>task protocol</strong>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">COMMANDS.md</code></td>
+      <td>The spec for every command.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">TASK_LOG.md</code> + <code class="language-plaintext highlighter-rouge">log/</code></td>
+      <td>An index of tasks, plus one write-up per task: plan, next step, what was done, how it was tested.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">repos/&lt;name&gt;/CLAUDE.md</code></td>
+      <td>A <strong>master</strong> instruction file per project: how to build and test it, and what earlier tasks learned (a bit of memory for the agents).</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="plan--launch--track--land">Plan → Launch → Track → Land</h3>
+
+<p>Every task follows the same loop:</p>
+
+<ul>
+  <li><strong>Plan.</strong> <code class="language-plaintext highlighter-rouge">scan-repo</code> sets each task’s definition of done; <code class="language-plaintext highlighter-rouge">plan</code> (a dry run) or <code class="language-plaintext highlighter-rouge">plan-task</code>
+(saved to the log) agrees a fuller plan before any heavy work.</li>
+  <li><strong>Launch.</strong> Name the task ID, and Claude works it on its own branch (<code class="language-plaintext highlighter-rouge">task/&lt;ID&gt;-&lt;slug&gt;</code>) in
+the target repo. It never commits to <code class="language-plaintext highlighter-rouge">main</code>.</li>
+  <li><strong>Track.</strong> The first commit copies the repo’s master <code class="language-plaintext highlighter-rouge">CLAUDE.md</code> in from dev-hub. Every step
+after that is logged, so a stopped task can resume where it left off.</li>
+  <li>
+    <p><strong>Land.</strong> Claude opens a draft PR. I review and merge it, and <code class="language-plaintext highlighter-rouge">mark-done</code> closes the task on
+the board in the <code class="language-plaintext highlighter-rouge">dev-hub</code> repo.</p>
+
+    <p><code class="language-plaintext highlighter-rouge">mark-done</code> also saves anything the task learned (a build quirk, a gotcha) into the repo’s
+master <code class="language-plaintext highlighter-rouge">CLAUDE.md</code>. That’s dev-hub’s light version of a memory bank: the next task in that
+repo reads it before it starts. More in <a href="#memory">Memory</a>.</p>
+  </li>
+</ul>
+
+<p>The <strong>definition of done</strong> is written on the task’s board row before work starts, so
+“finished” is never a judgment call made at the end. A task’s status is one of <code class="language-plaintext highlighter-rouge">Todo</code>, <code class="language-plaintext highlighter-rouge">WIP</code>,
+<code class="language-plaintext highlighter-rouge">Blocked</code> (waiting on a decision from me), <code class="language-plaintext highlighter-rouge">Usage-stopped</code> (paused by usage limits) or <code class="language-plaintext highlighter-rouge">Done</code>.
+Only <code class="language-plaintext highlighter-rouge">mark-done</code> sets <code class="language-plaintext highlighter-rouge">Done</code>, and only after checking that the PR merged.</p>
+
+<h2 id="the-commands">The commands</h2>
+
+<p>Commands are just words typed into a Claude session. There are two groups.</p>
+
+<p><strong>Board maintenance</strong> keeps the task board current. Each run is a branch and a PR in dev-hub,
+with no task log.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Command</th>
+      <th>What it does</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">add-repo &lt;repo&gt;</code></td>
+      <td>Adds a repo to the board and gives it a task-ID prefix (<code class="language-plaintext highlighter-rouge">gmag</code> → <code class="language-plaintext highlighter-rouge">GMAG-</code>).</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">refresh-overview</code></td>
+      <td>Rewrites the overview table: commits, last activity, stack, state.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">scan-repo &lt;name&gt;</code></td>
+      <td>Reads a repo’s README, tests, CI and TODOs; proposes tasks; writes its master <code class="language-plaintext highlighter-rouge">CLAUDE.md</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">new-task &lt;repo&gt;</code></td>
+      <td>Adds a task I describe, with the next free ID and a definition of done.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">check-board</code></td>
+      <td>Checks that IDs are unique and the board, logs and index agree.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Task lifecycle</strong> commands run the loop above.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Command</th>
+      <th>What it does</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">plan-task &lt;ID&gt;</code></td>
+      <td>Agrees the plan, saves it to the log, sets <code class="language-plaintext highlighter-rouge">WIP</code>, then does the work.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">multi-task &lt;ID&gt; &lt;ID&gt; …</code></td>
+      <td>Runs up to five small tasks from one repo on one branch and one PR.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">pickup-task &lt;ID&gt;</code></td>
+      <td>Resumes a stopped task from its log.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">mark-done &lt;ID&gt;</code></td>
+      <td>After the merge: sets <code class="language-plaintext highlighter-rouge">Done</code>, finalizes the log, saves learnings.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Put <code class="language-plaintext highlighter-rouge">plan</code> in front of any command (<code class="language-plaintext highlighter-rouge">plan scan-repo gmag</code>, <code class="language-plaintext highlighter-rouge">plan GMAG-2</code>) for a dry run.
+Claude does the read-only part and proposes the changes. Nothing is committed until I say “go”.</p>
+
+<h2 id="the-task-board">The task board</h2>
+
+<p>Here’s a trimmed copy of my live board, showing just the <code class="language-plaintext highlighter-rouge">gmag</code> and <code class="language-plaintext highlighter-rouge">smurphs_cooking</code> repos.
+Each <code class="language-plaintext highlighter-rouge">Done</code> task links to its merged PR so you can follow the trail.</p>
+
+<div class="notice--info">
+
+  <h3 class="no_toc" id="tracked-repos">Tracked Repos</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Repo</th>
+        <th>URL</th>
+        <th>Visibility</th>
+        <th>Prefix</th>
+        <th>Tracking</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>gmag</td>
+        <td>https://github.com/kylermurphy/gmag</td>
+        <td>public</td>
+        <td><code class="language-plaintext highlighter-rouge">GMAG-</code></td>
+        <td>active</td>
+        <td>Legacy setup.py</td>
+      </tr>
+      <tr>
+        <td>smurphs_cooking</td>
+        <td>https://github.com/kylermurphy/smurphs_cooking</td>
+        <td>public</td>
+        <td><code class="language-plaintext highlighter-rouge">COOK-</code></td>
+        <td>active</td>
+        <td>Jekyll recipe site (GitHub Pages) + build.py</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 class="no_toc" id="repo-overview">Repo overview</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Repo</th>
+        <th>Purpose</th>
+        <th>Commits</th>
+        <th>Last active</th>
+        <th>Stack</th>
+        <th>State</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>gmag</td>
+        <td>Ground-magnetometer data I/O (CARISMA, IMAGE, THEMIS)</td>
+        <td>210</td>
+        <td>Oct 2025</td>
+        <td>Python</td>
+        <td>Mature · no tests · no CI · setup.py</td>
+      </tr>
+      <tr>
+        <td>smurphs_cooking</td>
+        <td>Personal Jekyll recipe site (GitHub Pages) with search, tags, serving scaling</td>
+        <td>16</td>
+        <td>Aug 2026</td>
+        <td>Jekyll + JS (legacy Python <code class="language-plaintext highlighter-rouge">build.py</code>)</td>
+        <td>Live · no CI · no Gemfile · template README</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 class="no_toc" id="gmag--gmag-">gmag — <code class="language-plaintext highlighter-rouge">GMAG-</code></h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Status</th>
+        <th>Task</th>
+        <th>Type</th>
+        <th>Effort</th>
+        <th>Definition of done</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="https://github.com/kylermurphy/gmag/pull/7">GMAG-1</a></td>
+        <td>Done</td>
+        <td>Migrate <code class="language-plaintext highlighter-rouge">setup.py</code> → <code class="language-plaintext highlighter-rouge">pyproject.toml</code> and bump status past Alpha</td>
+        <td>Packaging</td>
+        <td>S</td>
+        <td>Modern build metadata; <code class="language-plaintext highlighter-rouge">pip install -e .</code> still works</td>
+      </tr>
+      <tr>
+        <td>GMAG-2</td>
+        <td>Todo</td>
+        <td>Add GitHub Actions CI (import + lint) on Python 3.10–3.12</td>
+        <td>CI</td>
+        <td>S</td>
+        <td>Workflow runs green on push/PR across the matrix</td>
+      </tr>
+      <tr>
+        <td>GMAG-3</td>
+        <td>Todo</td>
+        <td>Add a test suite for the loaders (mock the HTTP fetch)</td>
+        <td>Testing</td>
+        <td>M</td>
+        <td><code class="language-plaintext highlighter-rouge">carisma</code>/<code class="language-plaintext highlighter-rouge">image</code>/<code class="language-plaintext highlighter-rouge">themis</code> loaders covered without hitting the network</td>
+      </tr>
+      <tr>
+        <td>GMAG-4</td>
+        <td>Todo</td>
+        <td>Replace the <code class="language-plaintext highlighter-rouge">wget</code> dependency with <code class="language-plaintext highlighter-rouge">requests</code> streaming</td>
+        <td>Refactor</td>
+        <td>S</td>
+        <td><code class="language-plaintext highlighter-rouge">wget</code> dropped from install_requires; downloads still work</td>
+      </tr>
+      <tr>
+        <td>GMAG-5</td>
+        <td>Todo</td>
+        <td>Confirm the <code class="language-plaintext highlighter-rouge">efield</code> module is implemented, tested, and documented</td>
+        <td>Feature</td>
+        <td>M</td>
+        <td>efield derivation covered by a test and a README/example</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 class="no_toc" id="smurphscooking--cook-">smurphs_cooking — <code class="language-plaintext highlighter-rouge">COOK-</code></h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Status</th>
+        <th>Task</th>
+        <th>Type</th>
+        <th>Effort</th>
+        <th>Definition of done</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="https://github.com/kylermurphy/smurphs_cooking/pull/2">COOK-1</a></td>
+        <td>Done</td>
+        <td>Stop publishing non-site files: add <code class="language-plaintext highlighter-rouge">build.py</code>, <code class="language-plaintext highlighter-rouge">templates/</code>, <code class="language-plaintext highlighter-rouge">unparsed.md</code> to <code class="language-plaintext highlighter-rouge">_config.yml</code> <code class="language-plaintext highlighter-rouge">exclude</code></td>
+        <td>Hygiene</td>
+        <td>S</td>
+        <td>Built <code class="language-plaintext highlighter-rouge">_site/</code> contains none of those files; recipe pages unchanged</td>
+      </tr>
+      <tr>
+        <td>COOK-2</td>
+        <td>Todo</td>
+        <td>Decide on one build path: remove the unused Jinja <code class="language-plaintext highlighter-rouge">build.py</code> + <code class="language-plaintext highlighter-rouge">templates/</code> or document why they stay</td>
+        <td>Refactor</td>
+        <td>S</td>
+        <td>Only one generator remains, or README explains the second; nothing references a missing <code class="language-plaintext highlighter-rouge">requirements.txt</code></td>
+      </tr>
+      <tr>
+        <td>COOK-3</td>
+        <td>Todo</td>
+        <td>Add a <code class="language-plaintext highlighter-rouge">Gemfile</code> (<code class="language-plaintext highlighter-rouge">github-pages</code> gem) so the site builds locally</td>
+        <td>Build</td>
+        <td>S</td>
+        <td><code class="language-plaintext highlighter-rouge">bundle install &amp;&amp; bundle exec jekyll build</code> succeeds from a clean clone; README uses it</td>
+      </tr>
+      <tr>
+        <td>COOK-4</td>
+        <td>Todo</td>
+        <td>Add GitHub Actions CI: Jekyll build + front-matter check on <code class="language-plaintext highlighter-rouge">_recipes/*.md</code></td>
+        <td>CI</td>
+        <td>M</td>
+        <td>Workflow runs on push/PR; fails if the build breaks or a recipe lacks <code class="language-plaintext highlighter-rouge">title</code>/<code class="language-plaintext highlighter-rouge">date</code></td>
+      </tr>
+      <tr>
+        <td>COOK-5</td>
+        <td>Todo</td>
+        <td>Rewrite the README for this site</td>
+        <td>Docs</td>
+        <td>S</td>
+        <td>README describes this repo’s real setup, front-matter keys, and import workflow</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/kylermurphy/smurphs_cooking/pull/1">COOK-6</a></td>
+        <td>Done</td>
+        <td>Normalize tags to lowercase</td>
+        <td>Content</td>
+        <td>S</td>
+        <td>Every tag in <code class="language-plaintext highlighter-rouge">_recipes/</code> is lowercase; tags page shows no case-duplicate groups</td>
+      </tr>
+      <tr>
+        <td>COOK-7</td>
+        <td>Todo</td>
+        <td>Convert <code class="language-plaintext highlighter-rouge">unparsed.md</code> (Thai Chicken Pad See Ew) into a <code class="language-plaintext highlighter-rouge">_recipes/</code> entry and delete it</td>
+        <td>Content</td>
+        <td>S</td>
+        <td>New recipe page renders with ingredients/instructions; <code class="language-plaintext highlighter-rouge">unparsed.md</code> removed</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/kylermurphy/smurphs_cooking/pull/3">COOK-8</a></td>
+        <td>Done</td>
+        <td>Fix slug typos (<code class="language-plaintext highlighter-rouge">egg-roll-ramnen</code>, <code class="language-plaintext highlighter-rouge">cheesey-taco-rice</code>) without breaking old links</td>
+        <td>Content</td>
+        <td>S</td>
+        <td>Files renamed; old URLs redirect (e.g. <code class="language-plaintext highlighter-rouge">jekyll-redirect-from</code>) or the change is deliberately skipped with a note</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<h3 id="reading-the-board">Reading the board</h3>
+
+<ul>
+  <li><strong>Tracked Repos is the input.</strong> It’s the only table I edit (through <code class="language-plaintext highlighter-rouge">add-repo</code>). Its
+<strong>Prefix</strong> column is where task IDs come from, and setting <strong>Tracking</strong> to <code class="language-plaintext highlighter-rouge">paused</code> shelves a
+repo.</li>
+  <li><strong>Repo overview is derived.</strong> <code class="language-plaintext highlighter-rouge">refresh-overview</code> regenerates it, so I never edit it. The
+<strong>State</strong> column is a quick health check: gmag has no tests and no CI, which is why GMAG-2
+and GMAG-3 exist.</li>
+  <li><strong>Each task has a definition of done and an effort size.</strong> Effort (S / M / L) decides which
+model runs the task and whether it can run unattended.</li>
+  <li><strong>Status is the only column that changes as work happens,</strong> and only the commands change it.</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">TASK_LOG.md</code> keeps a running index of every task that’s been started, newest first:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Task</th>
+      <th>Repo</th>
+      <th>Branch</th>
+      <th>PR / patch</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2026-09-25</td>
+      <td>GMAG-1</td>
+      <td>gmag</td>
+      <td><code class="language-plaintext highlighter-rouge">task/GMAG-1-pyproject</code></td>
+      <td><a href="https://github.com/kylermurphy/gmag/pull/7">gmag#7</a></td>
+      <td>Done (merged 2026-09-25)</td>
+    </tr>
+    <tr>
+      <td>2026-09-25</td>
+      <td>COOK-8</td>
+      <td>smurphs_cooking</td>
+      <td><code class="language-plaintext highlighter-rouge">task/COOK-8-fix-slug-typos</code></td>
+      <td><a href="https://github.com/kylermurphy/smurphs_cooking/pull/3">smurphs_cooking#3</a> (from handed-back patch)</td>
+      <td>Done (PR confirmed 2026-09-25)</td>
+    </tr>
+    <tr>
+      <td>2026-09-23</td>
+      <td>COOK-1</td>
+      <td>smurphs_cooking</td>
+      <td><code class="language-plaintext highlighter-rouge">task/COOK-1-exclude-nonsite-files</code></td>
+      <td><a href="https://github.com/kylermurphy/smurphs_cooking/pull/2">smurphs_cooking#2</a></td>
+      <td>Done (merged 2026-09-24)</td>
+    </tr>
+    <tr>
+      <td>2026-09-23</td>
+      <td>COOK-6</td>
+      <td>smurphs_cooking</td>
+      <td><code class="language-plaintext highlighter-rouge">task/COOK-6-lowercase-tags</code></td>
+      <td><a href="https://github.com/kylermurphy/smurphs_cooking/pull/1">smurphs_cooking#1</a></td>
+      <td>Done (merged 2026-09-23)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="where-it-runs">Where it runs</h2>
+
+<p>The workflow is documented for several surfaces, but I’ve only run real tasks through the
+first three. The claude.ai Project handback surface is particularly useful if you don’t have
+Claude Code. It provides Git-formatted commit patches and zips of the changed files, since a
+Project can’t push. The workflow is a bit more user intensive, but not by much. You can read
+more about it <a href="https://kylermurphy.github.io/posts/2026/09/post-11/">here</a>.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Surface</th>
+      <th>Status</th>
+      <th>Good for</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Claude Code on the web (<a href="https://claude.ai/code">claude.ai/code</a>)</td>
+      <td>Verified</td>
+      <td>Most tasks. A cloud session with the target repo and dev-hub attached clones, builds, tests, pushes and opens PRs.</td>
+    </tr>
+    <tr>
+      <td>Claude Code on my machine</td>
+      <td>Verified</td>
+      <td>Everything, using my local git credentials, but only while the machine is on.</td>
+    </tr>
+    <tr>
+      <td>claude.ai Project in handback mode</td>
+      <td>Verified</td>
+      <td>Any device. It can’t push, so it hands back <code class="language-plaintext highlighter-rouge">git am</code> patches and PR text for me to commit. Setup is in <a href="https://github.com/kylermurphy/dev-hub-template/blob/main/templates/PROJECT_INSTRUCTIONS.md"><code class="language-plaintext highlighter-rouge">templates/PROJECT_INSTRUCTIONS.md</code></a>.</td>
+    </tr>
+    <tr>
+      <td>Claude desktop app + GitHub MCP server</td>
+      <td>Not yet tested</td>
+      <td>Bookkeeping and PRs through the GitHub API. No shell, so no builds or tests.</td>
+    </tr>
+    <tr>
+      <td>Desktop computer use</td>
+      <td>Not yet tested</td>
+      <td>Open question whether it’s useful here at all.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Some Claude Code on the web sessions are <strong>branch-restricted</strong>: they can push to only one
+branch. There, dev-hub’s bookkeeping arrives as a dev-hub PR instead of landing on <code class="language-plaintext highlighter-rouge">main</code>, and
+Claude says so in chat. The task isn’t fully closed until that PR merges too.</p>
+
+<h2 id="going-further-optional">Going further (optional)</h2>
+
+<p>That’s the core of dev-hub. The sections below cover the features built on top of it, plus one
+task in detail.</p>
+
+<h3 id="a-worked-example-gmag-1">A worked example: GMAG-1</h3>
+
+<div class="notice">
+
+  <p><a href="https://github.com/kylermurphy/gmag">gmag</a> is my ground-magnetometer data package. GMAG-1 was
+routine upkeep: replace <code class="language-plaintext highlighter-rouge">setup.py</code> with a <code class="language-plaintext highlighter-rouge">pyproject.toml</code> and move the status past Alpha. The
+definition of done was <em>“modern build metadata; <code class="language-plaintext highlighter-rouge">pip install -e .</code> still works.”</em></p>
+
+  <p>While planning, Claude found a real bug. <code class="language-plaintext highlighter-rouge">setup.py</code> declared no package data, so a normal
+<code class="language-plaintext highlighter-rouge">pip install</code> shipped <strong>none</strong> of the 41 station files in <code class="language-plaintext highlighter-rouge">gmag/Stations/</code>, and
+<code class="language-plaintext highlighter-rouge">load_station_coor()</code> quietly returned <code class="language-plaintext highlighter-rouge">None</code>. I’d never noticed, because I only use editable
+installs, which read straight from the source tree. The plan was updated to declare the data
+files, and the testing proved the fix: a wheel from the old <code class="language-plaintext highlighter-rouge">setup.py</code> had 0 station files; the
+new wheel has all 41 and returns the station row.</p>
+
+  <p>It also shows how the workflow handles friction. The first push was refused because the Claude
+GitHub App wasn’t installed on the <code class="language-plaintext highlighter-rouge">gmag</code> repo. Claude handed back a patch and the PR text
+instead of stalling. Once I installed the app, a “retry” pushed the same branch and opened
+<a href="https://github.com/kylermurphy/gmag/pull/7">gmag#7</a>. At <code class="language-plaintext highlighter-rouge">mark-done</code>, three learnings went into
+gmag’s master, so the next gmag task starts knowing them.</p>
+
+</div>
+
+<h3 id="batches">Batches</h3>
+
+<div class="notice">
+
+  <p>Plenty of tasks are tiny, and one PR each is more overhead than they’re worth. <code class="language-plaintext highlighter-rouge">multi-task</code>
+runs several on <strong>one branch with one PR</strong>:</p>
+
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>multi-task COOK-2 COOK-3 COOK-5
+multi-task smurphs_cooking      # Claude proposes a batch of the repo's small tasks
+</code></pre></div>  </div>
+
+  <p>All tasks must be in the same repo, with no <strong>L</strong> tasks and at most five. Each task still keeps
+its own log and status, and each commit is prefixed with its task ID, so one task can be
+reviewed or reverted alone. If one task needs a decision from me, it’s reverted and marked
+<code class="language-plaintext highlighter-rouge">Blocked</code>, and the rest ship. A usage stop pauses the whole batch.</p>
+
+</div>
+
+<h3 id="overnight-runs">Overnight runs</h3>
+
+<div class="notice">
+
+  <p>The logging is what lets tasks run while I sleep.
+<a href="https://github.com/kylermurphy/dev-hub-template/blob/main/OVERNIGHT.md"><code class="language-plaintext highlighter-rouge">OVERNIGHT.md</code></a> is
+written around a Claude subscription’s two limits, a 5-hour session window and a weekly cap:</p>
+
+  <ul>
+    <li><strong>Only S and M tasks.</strong> L tasks likely need planning and decisions from me.</li>
+    <li><strong>One task, or one batch, per run.</strong> Clearing the whole board in one session is how the
+weekly cap disappears.</li>
+    <li><strong>The cheapest model that works,</strong> with no extended thinking or web search unless needed.</li>
+    <li><strong>Finish early</strong>, so the session window refills before my workday.</li>
+  </ul>
+
+  <p>The kick-off prompt is short, because the protocol does the rest:</p>
+
+  <blockquote>
+    <p>Work on dev-hub task <strong>GMAG-2</strong> only (<code class="language-plaintext highlighter-rouge">plan-task GMAG-2</code>, unattended). Follow the task
+protocol in dev-hub’s <code class="language-plaintext highlighter-rouge">CLAUDE.md</code>. Persist the plan to <code class="language-plaintext highlighter-rouge">log/GMAG-2.md</code> before heavy work,
+commit as you go, and keep <strong>Status</strong> and <strong>Next step</strong> current. If a branch or log already
+exists, use <code class="language-plaintext highlighter-rouge">pickup-task</code> instead of restarting. On an ambiguous decision, set <code class="language-plaintext highlighter-rouge">Blocked</code>; if
+you stop for budget, set <code class="language-plaintext highlighter-rouge">Usage-stopped</code>.</p>
+  </blockquote>
+
+  <p>In the morning I review the draft PR and read the log’s Next step. If the run stopped partway,
+<code class="language-plaintext highlighter-rouge">pickup-task GMAG-2</code> picks up where the task left off, asks for any input it needs, and
+continues on.</p>
+
+</div>
+
+<h3 id="subagents">Subagents</h3>
+
+<div class="notice">
+
+  <p>Claude Code can hand work to a <strong>subagent</strong> running a cheaper model. The main session keeps the
+plan, every judgment call, and all commits and PRs. It delegates only when that’s cheaper than
+doing the work itself:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Delegate</th>
+        <th>Model tier</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Broad read-only search: find usages, survey a codebase</td>
+        <td>fast (Haiku)</td>
+      </tr>
+      <tr>
+        <td>Mechanical fan-out: one identical edit across all masters</td>
+        <td>fast (Sonnet if it needs care)</td>
+      </tr>
+      <tr>
+        <td>Run tests, lint or a build and summarize failures</td>
+        <td>fast (Haiku)</td>
+      </tr>
+      <tr>
+        <td>Draft tests or docs from a clear spec</td>
+        <td>mid (Sonnet)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>The plan, design decisions and small jobs stay with the main session. A subagent starts cold,
+so a handoff costs more than a quick edit.</p>
+
+</div>
+
+<h3 id="memory">Memory</h3>
+
+<div class="notice">
+
+  <p>I decided against a full “memory bank”. Memory in dev-hub is three light layers:</p>
+
+  <ul>
+    <li><strong>Per task: the log.</strong> <code class="language-plaintext highlighter-rouge">log/&lt;ID&gt;.md</code> holds the plan, the Next step and how the work was
+tested. It stands on its own even if the PR or chat is gone. It’s what <code class="language-plaintext highlighter-rouge">pickup-task</code> resumes
+from.</li>
+    <li><strong>Per repo: <code class="language-plaintext highlighter-rouge">## Learnings</code>.</strong> A task writes <code class="language-plaintext highlighter-rouge">Learning:</code> lines in its log, and <code class="language-plaintext highlighter-rouge">mark-done</code>
+moves them into the repo’s master <code class="language-plaintext highlighter-rouge">CLAUDE.md</code>. For example, after GMAG-1, gmag’s master says
+that <code class="language-plaintext highlighter-rouge">import gmag</code> needs <code class="language-plaintext highlighter-rouge">~/.gmag/gmagrc</code> with <code class="language-plaintext highlighter-rouge">data_dir</code> set. The list is capped at about 15
+bullets.</li>
+    <li><strong>For the workflow: <code class="language-plaintext highlighter-rouge">DECISIONS.md</code>.</strong> One dated line per workflow decision and why. Claude
+reads it before changing a rule, so a later session doesn’t undo something decided on
+purpose. It covers changes to dev-hub itself.</li>
+  </ul>
+
+  <p>The Learnings are the part I like most. Each task leaves the next one a little better prepared,
+as a side effect of closing it.</p>
+
+</div>
+
+<h3 id="other-coding-agents">Other coding agents</h3>
+
+<div class="notice">
+
+  <p>The template is written for Claude, but it’s all plain markdown.
+<a href="https://github.com/kylermurphy/dev-hub-template/blob/main/ADAPTING.md"><code class="language-plaintext highlighter-rouge">ADAPTING.md</code></a> has
+notes, untested so far, on porting it to other agents.</p>
+
+</div>]]></content><author><name>Kyle Murphy</name><email>kylemurphy.spacephys@gmail.com</email></author><category term="claude" /><category term="claude code" /><category term="ai agents" /><category term="workflow" /><category term="github" /><summary type="html"><![CDATA[I have a handful of research and side-project repos that all need the same kind of upkeep: tests that were never written, dated packaging, automated checks (continuous integration, or CI) that don’t exist, outdated READMEs. None of it is hard, but it never makes it to the top of the list; a lot of development stops once things work, as in plenty of research codebases.]]></summary></entry><entry><title type="html">Vectorizing and Parallelizing JB2008</title><link href="https://kylermurphy.github.io/posts/2025/06/post-9/" rel="alternate" type="text/html" title="Vectorizing and Parallelizing JB2008" /><published>2025-06-27T00:00:00+00:00</published><updated>2025-06-27T00:00:00+00:00</updated><id>https://kylermurphy.github.io/posts/2025/06/post-9</id><content type="html" xml:base="https://kylermurphy.github.io/posts/2025/06/post-9/"><![CDATA[<p><a href="https://arc.aiaa.org/doi/10.2514/6.2008-6438">JB2008</a> is an emperical atmospheric neutral density model (long name Jacchia-Bowman 2008). It is the most recent itteration of the Jacchia-Bowman family at atmospheric models and incorporates both Solar and Geomagnetic activity into the modelling of atmospheric neutral denisty, temperature, and exospheric temperature.</p>
+
+<p>The model is written in <a href="https://spacewx.com/jb2008/">Fortran</a> and has been translated to other languages including Python (e.g., <a href="https://github.com/PyAtmos/PyAtmos">Pyatmos</a>) and Matlab(e.g., <a href="https://github.com/davidgondelach/DESTO">DESTO</a>). Models predictions can also be requested through <a href="https://ccmc.gsfc.nasa.gov/models/JB2008~2008/">NASA’s CCMC</a>.</p>
+
+<p>The <a href="https://github.com/PyAtmos/PyAtmos">Pyatmos</a> is particularly useful as it provides a wrapper to run JB2008 in Python, arguabally the most popular language for research, data science and machine learning. However, <a href="https://github.com/PyAtmos/PyAtmos">Pyatmos</a> can be slow when performing a large number of predictions. This can inhibit larger studies which require a larger number of predictions (e.g., statistical or machine learning studies).</p>
+
+<p>To that end I set out to speed up the Python version of JB2008 by vectorizing portions of the code as well as leveraging parallelization. The vectorization is applied to a number of input and data prep functions. The parallelization takes advantage of the <a href="https://github.com/jmcarpenter2/swifter">swifter</a> module which first aims to vectorize a function call and then determines if Dask should can be used to speed up code via parallel processing. The combination of vectorization and <a href="https://github.com/jmcarpenter2/swifter">swifter</a> signifcantly speeds up JB2008 predictions. When ran on colab the vector-parallelized codes sees an <strong>~11x</strong> speed boost compared to <a href="https://github.com/PyAtmos/PyAtmos">Pyatmos</a>, 40s compared to nearly 8 minutes when predicting density for ~70,000 points (see below). On faster machines, the same calculation can take as little as 20 seconds!</p>
+
+<p>The vector-parallelized code can be found <a href="https://github.com/kylermurphy/jb2008">here</a>.</p>
+
+<h4 id="jb2008-vector-parallelized">JB2008 Vector-Parallelized</h4>
+<p><img src="/images/Fast_good.gif" alt="Fast JB2008" width="500" /></p>
+
+<h4 id="jb2008-pyatmos">JB2008 Pyatmos</h4>
+<p><img src="/images/Slow_good.gif" alt="Slow JB2008" width="500" /></p>]]></content><author><name>Kyle Murphy</name><email>kylemurphy.spacephys@gmail.com</email></author><category term="JB2008" /><category term="vectorize" /><category term="parallelize" /><category term="pyatmos" /><category term="swifter" /><summary type="html"><![CDATA[JB2008 is an emperical atmospheric neutral density model (long name Jacchia-Bowman 2008). It is the most recent itteration of the Jacchia-Bowman family at atmospheric models and incorporates both Solar and Geomagnetic activity into the modelling of atmospheric neutral denisty, temperature, and exospheric temperature.]]></summary></entry><entry><title type="html">skops - Machine Learning Model Persistence</title><link href="https://kylermurphy.github.io/posts/2025/03/post-8/" rel="alternate" type="text/html" title="skops - Machine Learning Model Persistence" /><published>2025-03-18T00:00:00+00:00</published><updated>2025-03-18T00:00:00+00:00</updated><id>https://kylermurphy.github.io/posts/2025/03/post-8</id><content type="html" xml:base="https://kylermurphy.github.io/posts/2025/03/post-8/"><![CDATA[<p>Persisting ML/AI models (or model serialization) allows users to save models that they’ve trained so that they can be reloaded and reused. Model persistence is important as it can save time and allows models to be shared with other users without the need to retrain the model (which can be computationally expensive and time consuming) or share the training data set (which can be large).</p>
+
+<p><a href="https://scikit-learn.org/stable/model_persistence.html">scikit-learn</a> lists a number of ways to persist models as well as providing an overview of each method (pros/cons/risks). Of these <a href="https://skops.readthedocs.io/en/stable/index.html">skops</a> feels like the best. Compared to ONNX it is rather simple and preserves the python object allowing you to work with trained model. Compared to pickle, joblib, and cloudpickle, it is more secure; when loading a file only <strong>trusted</strong> types will be loaded, any untrusted types require use validation before loading. Regarding IO, in my use case skops was faster then ONNX and offers much better compression with speeds and compression compariable to joblib (while being more secure).</p>
+
+<p>One downside to skops was identifying what data types are trusted. The webpage has a section on <a href="https://skops.readthedocs.io/en/stable/persistence.html#supported-libraries">Supported libraries</a>, but it’s unclear if <em>Supported</em> means trusted. However, with some digging you can find all of the trusted types and list them using <code class="language-plaintext highlighter-rouge">import skops.io_trusted_types as trusted</code>, you can then <code class="language-plaintext highlighter-rouge">tab</code> through <code class="language-plaintext highlighter-rouge">trusted</code> to identify the trusted types.</p>
+
+<p>The code below simplifies this and creates a DataFrame of trusted modules (columns) and their types (row)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">skops.io._trusted_types</span> <span class="k">as</span> <span class="n">trusted</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">getmembers</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+<span class="n">val</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+<span class="n">ind</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">getmembers</span><span class="p">(</span><span class="n">trusted</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="s">'NAMES'</span> <span class="ow">in</span> <span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">val</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">ind</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="n">trusted_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">val</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="n">ind</span><span class="p">).</span><span class="n">transpose</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>The first five rows of this DataFrame are below</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">CONTAINER_TYPE_NAMES</th>
+      <th style="text-align: left">NUMPY_DTYPE_TYPE_NAMES</th>
+      <th style="text-align: left">NUMPY_UFUNC_TYPE_NAMES</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">builtins.list</td>
+      <td style="text-align: left">numpy.bool_</td>
+      <td style="text-align: left">numpy.core._multiarray_umath.absolute</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">builtins.set</td>
+      <td style="text-align: left">numpy.bytes_</td>
+      <td style="text-align: left">numpy.core._multiarray_umath.add</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">builtins.map</td>
+      <td style="text-align: left">numpy.clongdouble</td>
+      <td style="text-align: left">numpy.core._multiarray_umath.arccos</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">builtins.tuple</td>
+      <td style="text-align: left">numpy.complex128</td>
+      <td style="text-align: left">numpy.core._multiarray_umath.arccosh</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"> </td>
+      <td style="text-align: left">numpy.complex64</td>
+      <td style="text-align: left">numpy.core._multiarray_umath.arcsin</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">SCIPY_UFUNC_TYPE_NAMES</th>
+      <th style="text-align: left">SKLEARN_ESTIMATOR_TYPE_NAMES</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">scipy.special._ufuncs.agm</td>
+      <td style="text-align: left">sklearn.linear_model._bayes.ARDRegression</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">scipy.special._ufuncs.airy</td>
+      <td style="text-align: left">sklearn.ensemble._weight_boosting.AdaBoostClassifier</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">scipy.special._ufuncs.airye</td>
+      <td style="text-align: left">sklearn.ensemble._weight_boosting.AdaBoostRegressor</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">scipy.special._ufuncs.bdtr</td>
+      <td style="text-align: left">sklearn.kernel_approximation.AdditiveChi2Sampler</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">scipy.special._ufuncs.bdtrc</td>
+      <td style="text-align: left">sklearn.cluster._affinity_propagation.AffinityPropagation</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>You can simplify this even more by turning it into a function</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">skops.io._trusted_types</span> <span class="k">as</span> <span class="n">trusted</span>
+<span class="kn">from</span> <span class="nn">skops.io._utils</span> <span class="kn">import</span> <span class="n">get_type_name</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">getmembers</span>
+
+<span class="n">val</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+<span class="n">ind</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">getmembers</span><span class="p">(</span><span class="n">trusted</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="s">'NAMES'</span> <span class="ow">in</span> <span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">val</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">ind</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="n">t_type</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">xs</span> <span class="ow">in</span> <span class="n">val</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xs</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">is_trusted</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span> 
+    <span class="k">return</span> <span class="n">get_type_name</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span> <span class="ow">in</span> <span class="n">t_type</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="n">is_trusted</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">int16</span><span class="p">())</span>
+
+<span class="bp">True</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="n">is_trusted</span><span class="p">(</span><span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">())</span>
+
+<span class="bp">False</span>
+</code></pre></div></div>]]></content><author><name>Kyle Murphy</name><email>kylemurphy.spacephys@gmail.com</email></author><category term="python" /><category term="skops" /><category term="model persistence" /><summary type="html"><![CDATA[Persisting ML/AI models (or model serialization) allows users to save models that they’ve trained so that they can be reloaded and reused. Model persistence is important as it can save time and allows models to be shared with other users without the need to retrain the model (which can be computationally expensive and time consuming) or share the training data set (which can be large).]]></summary></entry><entry><title type="html">Loading Data from the Web</title><link href="https://kylermurphy.github.io/posts/2024/10/post-7/" rel="alternate" type="text/html" title="Loading Data from the Web" /><published>2024-10-17T00:00:00+00:00</published><updated>2024-10-17T00:00:00+00:00</updated><id>https://kylermurphy.github.io/posts/2024/10/post-7</id><content type="html" xml:base="https://kylermurphy.github.io/posts/2024/10/post-7/"><![CDATA[<p>Many of Pandas read functions have the ability to read files from the internet. This can be helpful you’re writing tutorials or examples and want them to work even if users don’t have the data. Or if you want to quickly look at data without downloading it.</p>
+
+<p>Here we have a brief example using Pandas to remotely download <a href="'https://spdf.gsfc.nasa.gov/pub/data/omni/high_res_omni/'">NASA OMNI</a> solar wind and geomagnetic data.</p>
+
+<p>Lets start with loading the required packages (only Pandas and os!) and setting up a dictionary which stores the column names for the <a href="https://omniweb.gsfc.nasa.gov/html/omni_min_data.html#4b">1-minute OMNI data</a>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+
+<span class="n">cols</span> <span class="o">=</span> <span class="p">{</span><span class="s">'Year'</span><span class="p">:</span><span class="bp">None</span><span class="p">,</span> <span class="s">'DOY'</span><span class="p">:</span><span class="bp">None</span><span class="p">,</span> <span class="s">'Hour'</span><span class="p">:</span><span class="bp">None</span><span class="p">,</span> <span class="s">'Minute'</span><span class="p">:</span><span class="bp">None</span><span class="p">,</span>
+            <span class="s">'IMF_id'</span><span class="p">:</span><span class="mi">99</span><span class="p">,</span> <span class="s">'SW_id'</span><span class="p">:</span><span class="mi">99</span><span class="p">,</span> <span class="s">'IMF_pt'</span><span class="p">:</span><span class="mi">999</span><span class="p">,</span> <span class="s">'SW_pt'</span><span class="p">:</span><span class="mi">999</span><span class="p">,</span>
+            <span class="s">'Per_int'</span><span class="p">:</span><span class="mi">999</span><span class="p">,</span> <span class="s">'Timeshift'</span><span class="p">:</span><span class="mi">999999</span><span class="p">,</span> <span class="s">'RMS_Timeshift'</span><span class="p">:</span><span class="mi">999999</span><span class="p">,</span>
+            <span class="s">'RMS_PhaseFrontNormal'</span><span class="p">:</span><span class="mf">99.99</span><span class="p">,</span> <span class="s">'Time_btwn_observations'</span><span class="p">:</span><span class="mi">999999</span><span class="p">,</span>
+            <span class="s">'B'</span><span class="p">:</span><span class="mf">9999.99</span><span class="p">,</span> <span class="s">'Bx_GSEGSM'</span><span class="p">:</span><span class="mf">9999.99</span><span class="p">,</span> <span class="s">'By_GSE'</span><span class="p">:</span><span class="mf">9999.99</span><span class="p">,</span> <span class="s">'Bz_GSE'</span><span class="p">:</span><span class="mf">9999.99</span><span class="p">,</span>
+            <span class="s">'By_GSM'</span><span class="p">:</span><span class="mf">9999.99</span><span class="p">,</span> <span class="s">'Bz_GSM'</span><span class="p">:</span><span class="mf">9999.99</span><span class="p">,</span> <span class="s">'RMS_SD_B'</span><span class="p">:</span><span class="mf">9999.99</span><span class="p">,</span>
+            <span class="s">'RMS_SD_field_vector'</span><span class="p">:</span><span class="mf">9999.99</span><span class="p">,</span> <span class="s">'Vsw'</span><span class="p">:</span><span class="mf">99999.9</span><span class="p">,</span> <span class="s">'Vx_GSE'</span><span class="p">:</span><span class="mf">99999.9</span><span class="p">,</span>
+            <span class="s">'Vy_GSE'</span><span class="p">:</span><span class="mf">99999.9</span><span class="p">,</span> <span class="s">'Vz_GSE'</span><span class="p">:</span><span class="mf">99999.9</span><span class="p">,</span> <span class="s">'Prho'</span><span class="p">:</span><span class="mf">999.99</span><span class="p">,</span><span class="s">'Tp'</span><span class="p">:</span><span class="mf">9999999.</span><span class="p">,</span>
+            <span class="s">'dynP'</span><span class="p">:</span><span class="mf">99.99</span><span class="p">,</span> <span class="s">'Esw'</span><span class="p">:</span><span class="mf">999.99</span><span class="p">,</span> <span class="s">'Beta'</span><span class="p">:</span><span class="mf">999.99</span><span class="p">,</span> <span class="s">'AlfvenMach'</span><span class="p">:</span><span class="mf">999.9</span><span class="p">,</span>
+            <span class="s">'X(s/c), GSE'</span><span class="p">:</span><span class="mf">9999.99</span><span class="p">,</span> <span class="s">'Y(s/c), GSE'</span><span class="p">:</span><span class="mf">9999.99</span><span class="p">,</span> <span class="s">'Z(s/c), GSE'</span><span class="p">:</span><span class="mf">9999.99</span><span class="p">,</span>
+            <span class="s">'BSN location, Xgse'</span><span class="p">:</span><span class="mf">9999.99</span><span class="p">,</span> <span class="s">'BSN location, Ygse'</span><span class="p">:</span><span class="mf">9999.99</span><span class="p">,</span> <span class="s">'BSN location, Zgse'</span><span class="p">:</span><span class="mf">9999.99</span><span class="p">,</span>
+            <span class="s">'AE'</span><span class="p">:</span><span class="mi">99999</span><span class="p">,</span> <span class="s">'AL'</span><span class="p">:</span><span class="mi">99999</span><span class="p">,</span> <span class="s">'AU'</span><span class="p">:</span><span class="mi">99999</span><span class="p">,</span> <span class="s">'SYM_D index'</span><span class="p">:</span><span class="mi">99999</span><span class="p">,</span> <span class="s">'SYM_H index'</span><span class="p">:</span><span class="mi">99999</span><span class="p">,</span> 
+            <span class="s">'ASY_D index'</span><span class="p">:</span><span class="mi">99999</span><span class="p">,</span> <span class="s">'ASY_H index'</span><span class="p">:</span><span class="mi">99999</span><span class="p">,</span> <span class="s">'PC index'</span><span class="p">:</span><span class="mf">999.99</span><span class="p">,</span> <span class="s">'Na_Np Ratio'</span><span class="p">:</span><span class="mf">9.999</span><span class="p">,</span>
+            <span class="s">'MagnetosonicMach'</span><span class="p">:</span><span class="mf">99.9</span><span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>Set up the file structure which sets the http web addresses to OMNI files</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">http_path</span> <span class="o">=</span> <span class="s">'https://spdf.gsfc.nasa.gov/pub/data/omni/high_res_omni/'</span>
+<span class="n">sdate</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s">'2000'</span><span class="p">)</span>
+<span class="n">edate</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s">'2010'</span><span class="p">)</span>
+<span class="n">d_ser</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">sdate</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">edate</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s">'12MS'</span><span class="p">)</span>
+<span class="n">fn</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">http_path</span><span class="p">,</span><span class="sa">f</span><span class="s">'omni_min</span><span class="si">{</span><span class="n">x</span><span class="p">.</span><span class="n">year</span><span class="si">}</span><span class="s">.asc'</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">d_ser</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>Use Pandas <code class="language-plaintext highlighter-rouge">concat</code>, <code class="language-plaintext highlighter-rouge">read_csv</code>, and list comprehension to read all the datafiles and join them into a single DataFrame.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">om_dat</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">concat</span><span class="p">((</span><span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s">'\s+'</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s">'python'</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">cols</span><span class="p">.</span><span class="n">keys</span><span class="p">()),</span> 
+                    <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">on_bad_lines</span><span class="o">=</span><span class="s">'skip'</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fn</span><span class="p">),</span> <span class="n">ignore_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Create a datetime column (cause I like datetime).</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dates</span><span class="o">=</span><span class="p">[</span><span class="s">'Year'</span><span class="p">,</span><span class="s">'DOY'</span><span class="p">,</span><span class="s">'Hour'</span><span class="p">,</span><span class="s">'Minute'</span><span class="p">]</span>
+<span class="n">dv</span> <span class="o">=</span> <span class="n">om_dat</span><span class="p">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">dates</span><span class="p">].</span><span class="n">astype</span><span class="p">(</span><span class="s">'int32'</span><span class="p">)</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">x</span><span class="p">[</span><span class="s">'Year'</span><span class="p">]</span><span class="si">:</span><span class="mi">04</span><span class="si">}{</span><span class="n">x</span><span class="p">[</span><span class="s">'DOY'</span><span class="p">]</span><span class="si">:</span><span class="mi">03</span><span class="si">}{</span><span class="n">x</span><span class="p">[</span><span class="s">'Hour'</span><span class="p">]</span><span class="si">:</span><span class="mi">02</span><span class="si">}{</span><span class="n">x</span><span class="p">[</span><span class="s">'Minute'</span><span class="p">]</span><span class="si">:</span><span class="mi">02</span><span class="si">}</span><span class="s">"</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dv</span><span class="p">.</span><span class="n">iterrows</span><span class="p">()]</span>
+
+<span class="n">om_dat</span><span class="p">[</span><span class="s">'DateTime'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s">'%Y%j%H%M'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Finally use the <code class="language-plaintext highlighter-rouge">cols</code> dictionary to replace bad data in the OMNI dataset</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">kval</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">kval</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">continue</span>
+    <span class="n">om_dat</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">om_dat</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="n">kval</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">nan</span>
+</code></pre></div></div>]]></content><author><name>Kyle Murphy</name><email>kylemurphy.spacephys@gmail.com</email></author><category term="python" /><category term="pandas" /><category term="remotely loading data" /><category term="omni" /><summary type="html"><![CDATA[Many of Pandas read functions have the ability to read files from the internet. This can be helpful you’re writing tutorials or examples and want them to work even if users don’t have the data. Or if you want to quickly look at data without downloading it.]]></summary></entry><entry><title type="html">Anaconda and VS Code</title><link href="https://kylermurphy.github.io/posts/2023/02/post-6/" rel="alternate" type="text/html" title="Anaconda and VS Code" /><published>2023-02-13T00:00:00+00:00</published><updated>2023-02-13T00:00:00+00:00</updated><id>https://kylermurphy.github.io/posts/2023/02/post-6</id><content type="html" xml:base="https://kylermurphy.github.io/posts/2023/02/post-6/"><![CDATA[<p>Having problems accessing Anaconda from VS Code (<code class="language-plaintext highlighter-rouge">Python: Select Interpreter</code>)?</p>
+
+<p>If you’re using Windows and installed Anaconda locally, for one user as opposed for everyone, or haven’t added Anaconda to the Windows Path then VS Code may have troubles finding it.</p>
+
+<p>Luckily there is a simple solution. If your <code class="language-plaintext highlighter-rouge">conda</code> version is &gt;4.6 then you can run <code class="language-plaintext highlighter-rouge">conda init</code> from the <strong>base</strong> conda environment. This will initialize <code class="language-plaintext highlighter-rouge">conda</code> for shell interaction. In Windows this defaults to the <code class="language-plaintext highlighter-rouge">cmd</code> and <code class="language-plaintext highlighter-rouge">powershell</code> shells.</p>
+
+<p>If you have an older version first update <code class="language-plaintext highlighter-rouge">conda</code> with <code class="language-plaintext highlighter-rouge">conda update conda</code>.</p>]]></content><author><name>Kyle Murphy</name><email>kylemurphy.spacephys@gmail.com</email></author><category term="python" /><category term="anaconda" /><category term="vs code" /><category term="windows" /><summary type="html"><![CDATA[Having problems accessing Anaconda from VS Code (Python: Select Interpreter)?]]></summary></entry><entry><title type="html">Python Paths</title><link href="https://kylermurphy.github.io/posts/2023/02/post-5/" rel="alternate" type="text/html" title="Python Paths" /><published>2023-02-06T00:00:00+00:00</published><updated>2023-02-06T00:00:00+00:00</updated><id>https://kylermurphy.github.io/posts/2023/02/post-5</id><content type="html" xml:base="https://kylermurphy.github.io/posts/2023/02/post-5/"><![CDATA[<p>Often when working in science/research we are rapidly developing and modifying code (and maybe not following the very best practices for coding). In these instances we may not be writing, developing, or installing Python modules which can be accessed by the Python interpreter. Rather we may have a directory with set of scripts, functions, or classes. In Python in order to access these without installing a module we need to add the file path of our directory to the Python path. This can be easily acomplished using the <code class="language-plaintext highlighter-rouge">sys</code> module.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">file_path</span> <span class="o">=</span> <span class="s">'PATH\TO\CODE</span><span class="se">\'</span><span class="s">
+sys.path.append(os.path.dirname(file_path))
+</span></code></pre></div></div>
+
+<p>The above will add the <code class="language-plaintext highlighter-rouge">file_path</code> variable to the Python path allowing you to access the code within that directory. This works well when working in IPython and Jupyter Notebooks.</p>
+
+<p>Note, your directory of code <code class="language-plaintext highlighter-rouge">file_path</code> should still be structured like a <a href="https://docs.python.org/3/tutorial/modules.html#packages">Python package</a> so you can easily access the functionality of the code using <code class="language-plaintext highlighter-rouge">import</code> (see below for more info).</p>
+
+<p>Alternatively, you can add the file path to a conda development path file, <code class="language-plaintext highlighter-rouge">conda.pth</code>. This can be done using the <a href="https://docs.conda.io/projects/conda-build/en/stable/resources/commands/conda-develop.html"><code class="language-plaintext highlighter-rouge">conda-develop</code></a> command or by creating a <code class="language-plaintext highlighter-rouge">conda.pth</code> file in the Python path and adding the directory of interest to the file. <strong>Note</strong>, it is not recommended that this is done routinely as it can cause problems. To mitigate potential problems this should be done in an environment seperate from the main Python or <code class="language-plaintext highlighter-rouge">base</code> environment.</p>
+
+<p>This is similar to adding file paths or directories to the IDL path and may be simpler (and more familiar) to those more experienced in IDL.</p>
+
+<p>You can read more about packages and modules here:</p>
+
+<ul>
+  <li><a href="https://realpython.com/python-modules-packages/">Python Modules and Packages here</a>.</li>
+  <li><a href="https://python-packaging.readthedocs.io/en/latest/index.html">Python Packaging</a></li>
+  <li><a href="https://the-hitchhikers-guide-to-packaging.readthedocs.io/en/latest/index.html">Hitchhiker’s Guide to Packaging</a></li>
+</ul>]]></content><author><name>Kyle Murphy</name><email>kylemurphy.spacephys@gmail.com</email></author><category term="python" /><category term="anaconda" /><category term="path" /><summary type="html"><![CDATA[Often when working in science/research we are rapidly developing and modifying code (and maybe not following the very best practices for coding). In these instances we may not be writing, developing, or installing Python modules which can be accessed by the Python interpreter. Rather we may have a directory with set of scripts, functions, or classes. In Python in order to access these without installing a module we need to add the file path of our directory to the Python path. This can be easily acomplished using the sys module.]]></summary></entry><entry><title type="html">Python Environments</title><link href="https://kylermurphy.github.io/posts/2023/01/post-4/" rel="alternate" type="text/html" title="Python Environments" /><published>2023-01-30T00:00:00+00:00</published><updated>2023-01-30T00:00:00+00:00</updated><id>https://kylermurphy.github.io/posts/2023/01/post-4</id><content type="html" xml:base="https://kylermurphy.github.io/posts/2023/01/post-4/"><![CDATA[<p><strong><em>Environments</em></strong> in Anaconda and Python allow you to create a named and isolated copy of Python. Within these environments you can work with specefic versions of Python and packages without affecting your base installation. These enviroments make it easy to:</p>
+
+<ul>
+  <li>seperate projects which can rely on both specfic versions of Python and packages (like numpy)</li>
+  <li>test, install, and develop new packages without breaking your base installation</li>
+  <li>collaborate with others providing a simple way to share/mirror environments.</li>
+</ul>
+
+<p>Anaconda very simply creates and manages these enviroments using <a href="https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#sharing-an-environment">conda</a> though similar <strong><em>Virtual Environemnts</em></strong> can be created in Python with <a href="https://virtualenv.pypa.io/en/stable/userguide/">virtualenv</a>.</p>
+
+<p>This is a sample blog post. Lorem ipsum I can’t remember the rest of lorem ipsum and don’t have an internet connection right now. Testing testing testing this blog post. Blog posts are cool.</p>
+
+<h2 id="environments---an-example">Environments - An example</h2>
+
+<p>I recently had trouble installing a Python version of the International Geomagnetic Reference Field (IGRF) in order to calculate magnetic declinations. I was attempting to install  Michael Hirsch’s <a href="https://www.scivision.dev/"><em>scivision</em></a> <a href="https://github.com/scivision/igrf12">IGRF12</a> package from GitHub. Upon installation I kept running into an error with the <code class="language-plaintext highlighter-rouge">numpy</code> package. The IGRF12 installation required a version of numpy that wasn’t yet available through Anaconda and which conflicted with other package installtions I had. A new Python environment solved both these problems.</p>
+
+<p>Within the IGRF12 directory retrieved from GitHub the following solved <em>all my problems</em>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>conda info <span class="nt">--env</span> <span class="c">#list all environments</span>
+conda create <span class="nt">--name</span> igrf12 <span class="nv">python</span><span class="o">=</span>3.6 cmake pytest <span class="c">#create a new environment</span>
+conda activate igrf12 <span class="c">#activate the new environment</span>
+
+python <span class="nt">-m</span> pip <span class="nb">install</span> <span class="nt">-e</span> <span class="nb">.</span> <span class="c">#install igrf12</span>
+pytest <span class="c">#test installation</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">numpy</code> error could have also been solved by updating numpy through another channel like conda-forge but a seperate <strong><em>Environment</em></strong> allowed IGRF12 to be installed without affecting anything else.</p>
+
+<p>The above allowed me to install IGRF in a bare bones environment, additional packages could then be easily installed with <code class="language-plaintext highlighter-rouge">conda install</code> and <code class="language-plaintext highlighter-rouge">pip</code>.</p>
+
+<h2 id="evironments---some-basics">Evironments - Some Basics</h2>
+
+<p>There are several resources online that go into detail regarding <strong><em>Environments</em></strong> and one of the best is the <a href="https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#sharing-an-environment">Anaconda docs</a>. Regardless here are some of the basics regarding <strong><em>Environments</em></strong>.</p>
+
+<p>In the Anaconda prompt the base installation is identified by <code class="language-plaintext highlighter-rouge">(base)</code> at the start of the command line, which also identifies the currently active environment. To create and activate a new enviroment with the same Python version as you base installation you use:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># create and activate a new environment</span>
+conda create <span class="nt">--name</span> <span class="nb">test 
+</span>conda activate <span class="nb">test</span>
+
+<span class="c"># within the new environment you can install</span>
+<span class="c"># packages with pip and conda</span>
+
+<span class="c">#deactivate the new environment</span>
+conda deactivate
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># create an environement with a specfic</span>
+<span class="c"># version of Python </span>
+conda create <span class="nt">--name</span> Py27 <span class="nv">python</span><span class="o">=</span>2.7
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># or with specefic packages</span>
+conda create <span class="nt">--name</span> test2 scipy numpy matplotlib
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># list the avialable environments</span>
+conda <span class="nb">env </span>list
+conda info <span class="nt">--env</span>
+
+<span class="c"># to remove an environment</span>
+conda remove <span class="nt">--name</span> test2 <span class="nt">--all</span>
+</code></pre></div></div>
+
+<p>The Anaconda docs on <a href="https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#sharing-an-environment"><strong><em>Environtments</em></strong></a> goes into more detail regarding the above commands. It also discusses more complex tasks like sharing an environment for collaborations, which we’ll cover here in a future post. There are also numerous web resources regarding Python environments that may be helpful including:</p>
+
+<ul>
+  <li><a href="https://towardsdatascience.com/python-data-science-environment-setting-up-anaconda-environments-for-working-on-data-science-8b4bfbc3cd39">Towards Data Science</a>, Anaconda environments in PyCharm.</li>
+  <li><a href="https://medium.freecodecamp.org/why-you-need-python-environments-and-how-to-manage-them-with-conda-85f155f4353c">freeCodeCamp</a>, a more detailed discussion regarding environments.</li>
+</ul>]]></content><author><name>Kyle Murphy</name><email>kylemurphy.spacephys@gmail.com</email></author><category term="python" /><category term="anaconda" /><summary type="html"><![CDATA[Environments in Anaconda and Python allow you to create a named and isolated copy of Python. Within these environments you can work with specefic versions of Python and packages without affecting your base installation. These enviroments make it easy to:]]></summary></entry><entry><title type="html">Spyder GUI scaling</title><link href="https://kylermurphy.github.io/posts/2023/01/post-3/" rel="alternate" type="text/html" title="Spyder GUI scaling" /><published>2023-01-23T00:00:00+00:00</published><updated>2023-01-23T00:00:00+00:00</updated><id>https://kylermurphy.github.io/posts/2023/01/post-3</id><content type="html" xml:base="https://kylermurphy.github.io/posts/2023/01/post-3/"><![CDATA[<p>Experiencing weird scaling issues with Spyder?</p>
+
+<p>I recently got a new laptop with a very nice screen… the downside, Spyder didn’t render very nicely on it. Luckily there was a simple fix identified by <a href="https://emmanuelcontreras.com/2021/01/28/how-to-fix-spyder-gui-terrible-scaling-with-high-dpi-monitor-windows-10/">Emmanuel Contreras</a> (see this <a href="https://stackoverflow.com/questions/35854289/spyder-interface-icons-very-small-on-high-resolution-screen-in-windows-10">stackoverflow post</a> too).</p>
+
+<ol>
+  <li>Locate your <a href="https://stackoverflow.com/questions/37117571/where-does-anaconda-python-install-on-windows"><code class="language-plaintext highlighter-rouge">qt.conf file</code></a>.</li>
+  <li>Modify the qt.conf file by adding or modifying the line:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  [Platforms]
+  WindowsArguments = dpiawareness=0
+</code></pre></div>    </div>
+  </li>
+  <li>Restart Spyder</li>
+</ol>]]></content><author><name>Kyle Murphy</name><email>kylemurphy.spacephys@gmail.com</email></author><category term="python" /><category term="anaconda" /><category term="coding" /><category term="spyder" /><summary type="html"><![CDATA[Experiencing weird scaling issues with Spyder?]]></summary></entry><entry><title type="html">Reloading a module</title><link href="https://kylermurphy.github.io/posts/2023/01/post-2/" rel="alternate" type="text/html" title="Reloading a module" /><published>2023-01-16T00:00:00+00:00</published><updated>2023-01-16T00:00:00+00:00</updated><id>https://kylermurphy.github.io/posts/2023/01/post-2</id><content type="html" xml:base="https://kylermurphy.github.io/posts/2023/01/post-2/"><![CDATA[<p>Ever been actively editing a module while also using it? IPython (and JUPYTER) have some automagic to help with this.</p>
+
+<p><a href="https://ipython.readthedocs.io/en/stable/config/extensions/autoreload.html"><code class="language-plaintext highlighter-rouge">autoreload</code></a> reloads modules before excuting a line a code. If you’re working with some code and modify it you can use the below to ensure that the changes are applied before reexcuting the code.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>%load_ext autoreload
+%autoreload 2
+</code></pre></div></div>
+
+<p><strong>Note</strong>, if you are loading a module by adding it to you sysem path be sure to import the module using <code class="language-plaintext highlighter-rouge">import</code> rather then <code class="language-plaintext highlighter-rouge">import module as mod</code>, for example. When using <code class="language-plaintext highlighter-rouge">import as</code> it doesn’t appear as though the autoreload magic works.</p>
+
+<p>Read more about it at this <a href="https://stackoverflow.com/questions/5364050/reloading-submodules-in-ipython">stackoverflow post</a>.</p>]]></content><author><name>Kyle Murphy</name><email>kylemurphy.spacephys@gmail.com</email></author><category term="python" /><category term="coding" /><summary type="html"><![CDATA[Ever been actively editing a module while also using it? IPython (and JUPYTER) have some automagic to help with this.]]></summary></entry></feed>

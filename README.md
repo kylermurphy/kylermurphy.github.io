@@ -22,7 +22,7 @@ Keep these in mind when pulling a future upstream update:
 - `_includes/archive-single-cv-pub.html`: publication entry for the CV.
 - Live Scholar numbers: `assets/js/scholar.js` (loaded from `_includes/scripts.html`) fetches `data/scholar.json` from scholar_plot and fills any `data-scholar="citations.all"`-style, `data-scholar-since` and `data-scholar-updated` elements. `_includes/scholar-stat.html` renders one number with its build-time fallback from `_data/scholar_fallback.yml` (publications fall back to the size of `_publications`). Used by the landing-page stats and the CV "Research impact" row. Nothing is generated in this repo.
 - `_includes/toc`: `inline=true` option for a table of contents in the text column.
-- `_layouts/single.html`: `hide_title: true` front-matter option.
+- `_layouts/single.html`: `hide_title: true` front-matter option, and an "All projects" link above portfolio item titles.
 
 ## Local preview
 

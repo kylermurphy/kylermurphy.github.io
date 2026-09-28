@@ -357,3 +357,9 @@ details {
   font-size: 0.9em;
   opacity: 0.85;
 }
+
+/* "All projects" link above portfolio item titles */
+.page__content .back-link, .back-link {
+  margin: 0 0 0.5em;
+  font-size: $type-size-6;
+}

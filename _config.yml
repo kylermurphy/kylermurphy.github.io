@@ -176,6 +176,7 @@ exclude:
   - config
   - Dockerfile
   - AGENTS.md
+  - CLAUDE.md
   - README.md
   - docker-compose.yaml
   - markdown_generator

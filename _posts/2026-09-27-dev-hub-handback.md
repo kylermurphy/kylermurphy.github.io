@@ -41,7 +41,7 @@ Setup is a one-time job of about ten minutes.
    into the Project's custom instructions. They tell Claude to follow dev-hub's normal rules,
    with a few substitutions for not being able to push.
 5. **Optional: turn on automatic approval** of actions for the Project, so chats don't stop to
-   ask before each tool call.
+   ask before each tool call. `plan-task` and `plan-project` still wait for your go.
 
 To check it works, start a chat in the Project and type `how-to`. Claude prints a short guide
 to the loop below.
@@ -56,10 +56,12 @@ Then add your repos to the task board with `add-repo <owner>/<repo>`, `refresh-o
 
 ## Running a task
 
-The commands are the same as in the rest of dev-hub: `plan-task`, `multi-task`, `scan-repo` and
-so on. A task goes like this:
+The commands are the same as in the rest of dev-hub: `run-task`, `plan-task`, `multi-task`,
+`scan-repo` and so on. Handback mode runs tasks, batches, board maintenance and projects, but
+not features (see [Good to know](#good-to-know)). A task goes like this:
 
-1. **Name the task**, e.g. `do task COOK-8`.
+1. **Name the task**, e.g. `do task COOK-8`. That's `run-task`: Claude plans it and carries on.
+   With `plan-task COOK-8` instead, it posts the plan first and waits for my go.
 2. **Claude runs two checks** before doing anything: whether any earlier task was left
    unfinished (flagged with 🚩), and whether dev-hub has changed since the last run.
 3. **Claude does the work.** It clones the target repo, makes the changes, tests what it can,
@@ -129,6 +131,11 @@ instead. A leftover "previous rebase directory still exists" error has the same 
 - **Target repos must be public.** Claude clones them anonymously, so a private target repo
   can't be worked on here. (dev-hub itself can be private; it comes in through the Project's
   files.)
+- **No features here.** A feature's branch needs `main` merged in before each subtask, which a
+  patch can't carry, so features need Claude Code ([more on features](https://kylermurphy.github.io/posts/2026/09/post-12/)).
+- **Projects work too.** Project commands and everyday project edits only change dev-hub, so
+  they come back as a dev-hub patch, applied on `main` like the task bookkeeping
+  ([more on projects](https://kylermurphy.github.io/posts/2026/10/post-13/)).
 - **Some builds and tests can't run.** The Project's sandbox blocks some package registries.
   For COOK-8, Claude couldn't install the Ruby gems to build the Jekyll site, so it checked what
   it could and left the build checks in the PR for me to run before merging.

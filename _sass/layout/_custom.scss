@@ -37,18 +37,36 @@ div.highlighter-rouge .highlight, figure.highlight .highlight {
   margin: 0 0 2em;
   padding: 1.75em 1.75em 1.5em;
   border-radius: 10px;
-  color: #fff;
+  color: #f2f6fc;
+  border: 1px solid #234470;
+  /* always navy, in both colour schemes */
   background:
-    radial-gradient(120% 140% at 100% 0%, rgba(82, 173, 200, 0.55) 0%, rgba(82, 173, 200, 0) 55%),
-    radial-gradient(90% 120% at 0% 100%, rgba(98, 196, 98, 0.35) 0%, rgba(98, 196, 98, 0) 60%),
-    linear-gradient(135deg, #0b2a3a 0%, #134e63 55%, #1d6b80 100%);
+    radial-gradient(circle at 88% 28%, rgba(255, 138, 0, 0.20), rgba(255, 138, 0, 0) 52%),
+    linear-gradient(135deg, #0b1f3b 0%, #0f2a4f 60%, #143663 100%);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5em 2em;
+
+  &__text {
+    flex: 1 1 20em;
+    min-width: 0;
+  }
+  &__mark {
+    flex: 1 1 18em;
+    width: 100%;
+    max-width: 440px;
+    height: auto;
+    margin: 0 auto;
+  }
 
   &__kicker {
     margin: 0 0 0.35em;
     font-size: $type-size-6;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    opacity: 0.85;
+    color: #8fd9ff;
+    opacity: 1;
   }
   &__title {
     margin: 0 0 0.5em;
@@ -63,17 +81,19 @@ div.highlighter-rouge .highlight, figure.highlight .highlight {
     margin: 0 0 1.25em;
     font-size: 1em;
     line-height: 1.55;
-    opacity: 0.95;
-    a { color: #bfe9f5; }
+    color: #c9d5ea;
+    opacity: 1;
+    a { color: #8fd9ff; }
   }
   .btn {
     margin-right: 0.4em;
     margin-bottom: 0.5em;
   }
   .btn--light {
-    color: #0b2a3a !important;
-    background: #fff;
-    &:hover { background: #e3f4f9; }
+    color: #0b1f3b !important;
+    background: #ff8a00;
+    font-weight: 600;
+    &:hover { background: #ffa033; }
   }
   .btn--ghost {
     background: transparent;
@@ -93,12 +113,14 @@ div.highlighter-rouge .highlight, figure.highlight .highlight {
   &__item {
     padding: 0.9em 0.8em;
     text-align: center;
-    border: 1px solid var(--global-border-color);
+    background: var(--krm-surface);
+    border: 1px solid var(--krm-line);
+    border-top: 3px solid var(--krm-accent);
     border-radius: 8px;
   }
   &__num {
     display: block;
-    color: var(--global-base-color);
+    color: var(--krm-text);
     font-size: 1.6em;
     font-weight: 700;
     line-height: 1.1;
@@ -129,13 +151,14 @@ div.highlighter-rouge .highlight, figure.highlight .highlight {
 }
 .skill-card {
   padding: 1em 1.1em;
-  border: 1px solid var(--global-border-color);
-  border-left: 4px solid var(--global-base-color);
+  background: var(--krm-surface);
+  border: 1px solid var(--krm-line);
+  border-left: 4px solid var(--krm-accent);
   border-radius: 6px;
   h3 {
     margin: 0 0 0.4em;
     font-size: 1em;
-    i { margin-right: 0.35em; color: var(--global-base-color); }
+    i { margin-right: 0.35em; color: var(--krm-accent); }
   }
   p {
     margin: 0;
@@ -161,8 +184,9 @@ div.highlighter-rouge .highlight, figure.highlight .highlight {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid var(--global-border-color);
-  border-radius: 8px;
+  background: var(--krm-surface);
+  border: 1px solid var(--krm-line);
+  border-radius: 12px;
   transition: $global-transition;
   &:hover {
     transform: translateY(-2px);
@@ -195,7 +219,7 @@ div.highlighter-rouge .highlight, figure.highlight .highlight {
   }
   &__kicker {
     margin: 0 0 0.25em;
-    color: var(--global-base-color);
+    color: var(--krm-sky);
     font-size: $type-size-7;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -227,9 +251,10 @@ div.highlighter-rouge .highlight, figure.highlight .highlight {
   li {
     display: inline-block;
     margin: 0 0.3em 0.3em 0;
-    padding: 0.1em 0.55em;
+    padding: 0.1em 0.65em;
     font-size: $type-size-7;
-    border: 1px solid var(--global-border-color);
+    color: var(--krm-muted);
+    background: var(--krm-chip);
     border-radius: 999px;
   }
 }
@@ -362,4 +387,55 @@ details {
 .page__content .back-link, .back-link {
   margin: 0 0 0.5em;
   font-size: $type-size-6;
+}
+
+
+/* --------------------------------------------------------------------------
+   KRM brand: masthead logo, footer lockup, portfolio header
+   Swaps with the colour scheme: the toggle sets data-theme="dark" on <html>.
+   -------------------------------------------------------------------------- */
+
+.brand-img--dark { display: none; }
+.brand-img--light { display: block; }
+html[data-theme="dark"] .brand-img--dark { display: block; }
+html[data-theme="dark"] .brand-img--light { display: none; }
+
+.masthead__brand {
+  padding-right: 1.5em;
+  a {
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+    border: 0;
+  }
+  min-width: max-content;
+  .brand-img { height: 40px; width: auto; max-width: none; flex: none; }
+  .brand-mono { height: 32px; margin-left: 0.25em; }
+  @include breakpoint($medium) {
+    .brand-img { height: 64px; }
+    .brand-mono { height: 54px; }
+  }
+}
+/* On phones the logo is the home link; the text "Kyle Murphy" link would not fit beside it */
+@media (max-width: #{$medium - 1}) {
+  .masthead__menu-item--lg { display: none; }
+}
+/* selected-link underline must not hit the logo */
+.masthead__menu-item.masthead__brand a { border-bottom: 0; }
+
+.page__footer-brand {
+  margin: 1em 0 0.5em;
+  .brand-img { height: 48px; width: auto; }
+}
+
+.page-intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1em 2em;
+  margin-bottom: 1.5em;
+  padding-bottom: 1.25em;
+  border-bottom: 1px solid var(--krm-line);
+  p { flex: 1 1 22em; margin: 0; }
+  &__lockup { flex: 0 1 380px; width: 100%; max-width: 380px; height: auto; }
 }

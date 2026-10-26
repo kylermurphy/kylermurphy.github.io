@@ -19,6 +19,11 @@
 </div>
 {% endif %}
 
+<div class="page__footer-brand">
+  <img class="brand-img brand-img--dark" src="{{ base_path }}/images/brand/krm-lockup-horizontal-dark.svg" alt="{{ site.title }}, space weather and machine learning">
+  <img class="brand-img brand-img--light" src="{{ base_path }}/images/brand/krm-lockup-horizontal-light.svg" alt="{{ site.title }}, space weather and machine learning">
+</div>
+
 <div class="page__footer-copyright">
   &copy; {{ site.time | date: '%Y' }} {{ site.name | default: site.title }}, {{ site.data.ui-text[site.locale].powered_by | default: "Powered by" }} <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://github.com/academicpages/academicpages.github.io">AcademicPages</a>, a fork of <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.<br />
   Site last updated {{ "now" | date: '%Y-%m-%d' }}, <a href="/sitemap/" style="text-transform: uppercase;">{{ site.data.ui-text[site.locale].site_map | default: "Sitemap" }}</a>

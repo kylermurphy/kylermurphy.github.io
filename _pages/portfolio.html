@@ -7,7 +7,11 @@ author_profile: true
 
 {% include base_path %}
 
+<div class="page-intro">
 <p>Selected projects: models, open-source software, and research I've built or led. Each card links to a short write-up with the problem, what I did, and where to find the code or paper.</p>
+<img class="brand-img brand-img--dark page-intro__lockup" src="{{ base_path }}/images/brand/krm-lockup-horizontal-dark.svg" alt="">
+<img class="brand-img brand-img--light page-intro__lockup" src="{{ base_path }}/images/brand/krm-lockup-horizontal-light.svg" alt="">
+</div>
 
 {% assign items = site.portfolio | sort: "order" %}
 <div class="card-grid card-grid--3">

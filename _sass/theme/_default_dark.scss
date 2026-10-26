@@ -28,7 +28,7 @@ $warning-color              : #f89406;
 $border-radius              : 4px;
 $box-shadow                 : 0 1px 1px rgba(0, 0, 0, 0.125);
 $global-transition          : all 0.2s ease-in-out;
-$masthead-height            : 70px;
+$masthead-height            : 84px;
 $navicon-width              : 28px;
 $navicon-height             : 4px;
 $sidebar-link-max-width     : 250px;
@@ -36,21 +36,31 @@ $sidebar-screen-min-width   : 1024px;
 
 /* Dark theme for the site */
 html[data-theme="dark"] {
-    --global-base-color                 : #{$primary-color};
-    --global-bg-color                   : #{$background};
-    --global-footer-bg-color            : #{$background};
-    --global-border-color               : #{$light-gray};
-    --global-dark-border-color          : #{$background-light};
+    /* KRM brand tokens (see images/brand/) */
+    --krm-bg                            : #0b1f3b;
+    --krm-surface                       : #10294d;
+    --krm-line                          : #234470;
+    --krm-text                          : #f2f6fc;
+    --krm-muted                         : #a7b6d2;
+    --krm-accent                        : #ff8a00;
+    --krm-accent-ink                    : #0b1f3b;
+    --krm-sky                           : #4fc3ff;
+    --krm-chip                          : #16355f;
+
+    --global-base-color                 : var(--krm-sky);
+    --global-bg-color                   : var(--krm-bg);
+    --global-footer-bg-color            : var(--krm-surface);
+    --global-border-color               : var(--krm-line);
+    --global-dark-border-color          : var(--krm-line);
     --global-code-background-color      : #fafafa;
     --global-code-text-color            : #{$darker-gray};
-    --global-fig-caption-color          : #{$light-gray};
-    --global-link-color                 : #{$link};
-    --global-link-color-hover           : #{$link-dark};
-    --global-link-color-visited         : #{$link-light};
-    --global-masthead-link-color        : #{$text};
-    --global-masthead-link-color-hover  : #{$primary-color};
-    --global-text-color                 : #{$text};
-    --global-text-color-light           : #f3f3f3;
-    --global-thead-color                : #{$background-lighter};
+    --global-fig-caption-color          : var(--krm-muted);
+    --global-link-color                 : var(--krm-sky);
+    --global-link-color-hover           : mix(#000, #4fc3ff, 25%);
+    --global-link-color-visited         : mix(#fff, #4fc3ff, 25%);
+    --global-masthead-link-color        : var(--krm-muted);
+    --global-masthead-link-color-hover  : var(--krm-text);
+    --global-text-color                 : var(--krm-text);
+    --global-text-color-light           : var(--krm-muted);
+    --global-thead-color                : var(--krm-chip);
 }
-

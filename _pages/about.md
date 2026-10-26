@@ -12,12 +12,15 @@ redirect_from:
 {% include base_path %}
 
 <section class="hero">
+<div class="hero__text">
   <p class="hero__kicker">Space weather · Machine learning · Scientific software</p>
   <h1 class="hero__title">I build models that predict how space weather affects satellites and the systems we rely on.</h1>
   <p class="hero__lede">I'm Kyle Murphy, a space physicist and independent consultant in Thunder Bay, Ontario. I've spent 20+ years studying how geomagnetic storms reshape near-Earth space, at the University of Alberta and NASA Goddard. Today I turn that expertise into <strong>machine-learning models, open-source software, and research programs</strong> for teams working on satellite drag, orbit prediction, and space-weather risk.</p>
   <a class="btn btn--light" href="{{ base_path }}/portfolio/">See my work</a>
   <a class="btn btn--ghost" href="{{ base_path }}/cv/">CV / résumé</a>
   <a class="btn btn--ghost" href="mailto:{{ site.author.email }}">Get in touch</a>
+</div>
+  <img class="hero__mark" src="{{ base_path }}/images/brand/krm-main-dark.svg" alt="" aria-hidden="true">
 </section>
 
 <div class="stats">

@@ -20,7 +20,7 @@ redirect_from:
   <a class="btn btn--ghost" href="{{ base_path }}/cv/">CV / résumé</a>
   <a class="btn btn--ghost" href="mailto:{{ site.author.email }}">Get in touch</a>
 </div>
-  <img class="hero__mark" src="{{ base_path }}/images/brand/krm-anim-field-dark.svg" alt="" aria-hidden="true">
+  <img class="hero__mark" src="{{ base_path }}/images/brand/krm-anim-aurora-dark.svg" alt="" aria-hidden="true">
 </section>
 
 <div class="stats">

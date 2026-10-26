@@ -4,7 +4,7 @@
 .wd{--s:1.4} .sn{--s:1.3} .fd{--s:1.4}
 @keyframes pulse{0%{transform:scale(1);filter:var(--f0)}7%{transform:scale(var(--s));filter:var(--fp)}24%{transform:scale(1);filter:var(--f0)}100%{transform:scale(1);filter:var(--f0)}}
 .au{transform-box:fill-box;transform-origin:center;animation:aurora 3.2s ease-out infinite;animation-delay:calc(var(--d) * 1s - 3.2s)}
-@keyframes aurora{0%{transform:scale(1);fill:#fff;filter:none}9%{transform:scale(2.3);fill:#5CFFB0;filter:drop-shadow(0 0 1.6px #5CFFB0)}34%{transform:scale(1.15);fill:#5CFFB0;filter:drop-shadow(0 0 1px #5CFFB0)}58%{transform:scale(1);fill:#fff;filter:none}100%{transform:scale(1);fill:#fff;filter:none}}
+@keyframes aurora{0%{transform:scale(1);fill:#fff;filter:none}9%{transform:scale(1.5);fill:#5CFFB0;filter:drop-shadow(0 0 1.6px #5CFFB0)}34%{transform:scale(1.08);fill:#5CFFB0;filter:drop-shadow(0 0 1px #5CFFB0)}58%{transform:scale(1);fill:#fff;filter:none}100%{transform:scale(1);fill:#fff;filter:none}}
 .glow{animation:glow 3.2s ease-out infinite;animation-delay:calc(1.75s - 3.2s)}
 @keyframes glow{0%{opacity:.12}8%{opacity:.34}30%{opacity:.12}100%{opacity:.12}}
 @media (prefers-reduced-motion:reduce){.wd,.sn,.fd,.au,.glow{animation:none}}

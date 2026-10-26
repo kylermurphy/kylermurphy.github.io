@@ -15,12 +15,12 @@ function determineComputedTheme() {
   let themeSetting = localStorage.getItem("theme");
   themeSetting = (themeSetting != "dark" && themeSetting != "light" && themeSetting != "system") ? "system" : themeSetting;
 
-  // Return the visitor's choice if they've used the toggle; otherwise the site
-  // defaults to light (the OS dark-mode preference is deliberately ignored).
+  // Return the visitor's choice if they've used the toggle; otherwise follow the
+  // device (OS/browser) colour-scheme setting.
   if (themeSetting != "system") {
     return themeSetting;
   }
-  return "light";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 // Set the theme on page load or when explicitly called. Without an argument the
@@ -137,10 +137,25 @@ function redrawPlotly() {
 $(document).ready(function () {
   // SCSS SETTINGS - These should be the same as the settings in the relevant files
   const scssLarge = 925;          // pixels, from /_sass/_themes.scss
-  const scssMastheadHeight = 70;  // pixels, from the current theme (e.g., /_sass/theme/_default.scss)
+  const scssMastheadHeight = 84;  // pixels, from the current theme (e.g., /_sass/theme/_default.scss)
 
-  // Apply the stored choice, or light by default
+  // Apply the stored choice, or the device setting by default
   setTheme();
+
+  // Follow device changes live, unless the visitor has picked a theme with the toggle
+  const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  const onSchemeChange = function () {
+    const stored = localStorage.getItem("theme");
+    if (stored !== "dark" && stored !== "light") {
+      setTheme();
+      redrawPlotly();
+    }
+  };
+  if (darkQuery.addEventListener) {
+    darkQuery.addEventListener("change", onSchemeChange);
+  } else if (darkQuery.addListener) {
+    darkQuery.addListener(onSchemeChange);
+  }
 
   // Enable the theme toggle
   $('#theme-toggle').on('click', toggleTheme);
